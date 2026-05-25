@@ -109,6 +109,7 @@ export default function App() {
     const newAct: OgaRecentActivity = {
       id: `act-gen-${Date.now()}`,
       text,
+      agent: "agent name",
       time: 'Just now'
     };
     setRecentActivities([newAct, ...recentActivities.slice(0, 4)]);

@@ -26,6 +26,7 @@ export interface OgaRecentActivity {
   id: string;
   text: string;
   time: string;
+  agent: string;
 }
 
 export interface OgaAgent {

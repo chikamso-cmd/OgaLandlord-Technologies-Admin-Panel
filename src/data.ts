@@ -88,27 +88,32 @@ export const initialAlerts: OgaAlert[] = [
 export const initialRecentActivities: OgaRecentActivity[] = [
   {
     id: 'act-1',
-    text: 'New agent verification request: Chukwudi Okonkwo',
+    text: 'New agent verification request',
+    agent: 'Chukwudi Okonkwo',
     time: '5 minutes ago'
   },
   {
     id: 'act-2',
-    text: 'Report filed against agent: Amaka Johnson',
+    text: 'Report filed against agent ',
+    agent: 'Amaka Johnson',
     time: '5 minutes ago'
   },
   {
     id: 'act-3',
-    text: 'Listing approved: Tunde Bakare',
+    text: 'Listing approved',
+    agent: 'Tunde Bakare',
     time: '5 minutes ago'
   },
   {
     id: 'act-4',
-    text: 'Subscription renewed: Ngozi Eze',
+    text: 'Subscription renewed',
+    agent: 'Ngozi Eze',
     time: '5 minutes ago'
   },
   {
     id: 'act-5',
-    text: 'Agent suspended: Ibrahim Musa',
+    text: 'Agent suspended',
+    agent: 'Ibrahim Musa',
     time: '5 minutes ago'
   }
 ];

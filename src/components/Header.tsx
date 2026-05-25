@@ -41,28 +41,20 @@ export default function Header({
   const unreadAlerts = alerts;
 
   return (
-    <header className="h-16 bg-white border-b border-emerald-950/5 flex items-center justify-between px-6 z-20 select-none relative">
+    <header className="h-13 bg-[#f3faf6] border-b border-emerald-950/5 flex items-center justify-between px-6 z-20 select-none relative">
       
       {/* Left section: Hamburger (Mobile) and Mobile Title */}
-      <div className="flex items-center gap-3">
+      <div className="flex  gap-3">
         <button
           onClick={onToggleMobileMenu}
           className="p-1 px-2 text-[#004d2c] hover:bg-[#004d2c]/10 rounded-lg md:hidden cursor-pointer"
         >
           <Menu size={20} />
         </button>
-        <h1 className="text-base font-bold text-slate-800 md:hidden">
-          Oga Landlord
-        </h1>
-        <div className="hidden md:block">
-          <span className="text-xs font-semibold text-[#004d2c] tracking-wider uppercase bg-[#e6f4ea] px-2.5 py-1 rounded-md">
-            OgaLandlord Workspace
-          </span>
-        </div>
       </div>
 
       {/* Center Search Input */}
-      <div className="flex-1 max-w-lg mx-6 relative">
+      <div className="flex-1 relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
           <Search size={15} />
         </span>
@@ -71,7 +63,7 @@ export default function Header({
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search agents, listings, reports..."
-          className="w-full pl-9 pr-4 py-1.5 text-xs bg-slate-50/80 hover:bg-slate-50 focus:bg-white text-slate-800 border border-slate-200/80 rounded-lg outline-none focus:border-[#004d2c] focus:ring-1 focus:ring-[#004d2c] transition-all"
+          className="w-full pl-9 pr-4 py-1.5 text-xs bg-white hover:bg-slate-50 focus:bg-white text-slate-800 border border-slate-200/80 rounded-lg outline-none focus:border-[#004d2c] focus:ring-1 focus:ring-[#004d2c] transition-all"
         />
       </div>
 
@@ -128,17 +120,6 @@ export default function Header({
               </div>
             </div>
           )}
-        </div>
-
-        {/* Small profile status */}
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center border border-emerald-100">
-            <span className="text-xs font-bold text-[#004d2c]">AO</span>
-          </div>
-          <div className="hidden lg:block text-left">
-            <p className="text-xs font-bold text-slate-800 leading-none">Admin Officer</p>
-            <p className="text-[10px] text-[#00a86b] font-medium leading-none mt-1">Status: Active</p>
-          </div>
         </div>
       </div>
     </header>

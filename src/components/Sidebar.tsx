@@ -51,19 +51,19 @@ export default function Sidebar({
   };
 
   return (
-    <div className="w-64 max-w-[260px] h-screen bg-[#004d2c] text-slate-100 flex flex-col justify-between border-r border-[#003d22]">
+    <div className="w-50 max-w-60 h-screen bg-[#004d2c] text-slate-100 flex flex-col justify-between border-r border-[#003d22]">
       <div>
         {/* Sidebar Header Logo */}
         <div className="p-5 border-b border-[#005e36] flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center text-white">
-              <Sparkles size={20} />
+              <img src="/housekey.png" alt="Ogalandlord logo" className="w-6 object-fit"  />
             </div>
             <div>
-              <h2 className="text-sm font-extrabold tracking-tight text-white leading-none">
+              <h2 className="text-sm font-bold tracking-tight text-white leading-none">
                 OgaLandlord
               </h2>
-              <span className="text-[10px] text-[#86efac] font-medium tracking-wider uppercase">
+              <span className="text-[10px] text-white font-normal tracking-wider">
                 Admin Panel
               </span>
             </div>
@@ -87,7 +87,7 @@ export default function Sidebar({
               <button
                 key={item.id}
                 onClick={() => handleTabClick(item.id)}
-                className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm text-[#eaefec] transition-all cursor-pointer group ${
+                className={`w-full flex items-center justify-between px-4 py-2 rounded-lg text-[10px]  transition-all cursor-pointer group ${
                   isActive
                     ? 'bg-[#eaefec] text-[#004d2c] font-semibold shadow-sm'
                     : 'hover:bg-white/10 text-green-100 hover:text-white'
@@ -95,7 +95,7 @@ export default function Sidebar({
               >
                 <div className="flex items-center gap-3">
                   <IconComponent 
-                    size={17} 
+                    size={14} 
                     className={isActive ? 'text-[#004d2c]' : 'text-green-300 group-hover:text-white transition-colors'} 
                   />
                   <span>{item.label}</span>
@@ -117,13 +117,13 @@ export default function Sidebar({
 
       {/* Sidebar Footer account details */}
       <div className="p-4 border-t border-[#005e36] bg-[#003d22]/40">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-9 h-9 min-w-[36px] bg-[#00a86b]/20 border border-[#00bf71]/30 rounded-full flex items-center justify-center text-emerald-300 font-bold text-xs uppercase shadow-sm">
+            <div className="w-6 h-6 min-w-6 bg-[#00a86b]/20 border border-[#00bf71]/30 rounded-full flex items-center justify-center text-emerald-300 font-bold text-[10px] uppercase shadow-sm">
               AO
             </div>
             <div className="overflow-hidden">
-              <h4 className="text-xs font-bold text-white leading-tight truncate">
+              <h4 className="text-[10px] font-bold text-white leading-tight truncate">
                 Admin Officer
               </h4>
               <p className="text-[10px] text-green-300 leading-tight truncate">
