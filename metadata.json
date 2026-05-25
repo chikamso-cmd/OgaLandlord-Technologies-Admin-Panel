@@ -1,0 +1,6 @@
+{
+  "name": "OgaLandlord Admin Panel",
+  "description": "A premium compliance and operations moderator panel for Oga Landlord. Audits trust scores, approves listings, penalizes scams, manages Naira subscriptions, and registers events.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
