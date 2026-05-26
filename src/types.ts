@@ -4,6 +4,7 @@
  */
 
 export type DashboardTab = 'dashboard' | 'agents' | 'listings' | 'reports' | 'subscriptions' | 'settings';
+export type ModalActionType = 'ban' | 'reduce' | 'suspend' | 'reject' | 'remove' | 'extendSub';
 
 export interface OgaStatCard {
   id: string;

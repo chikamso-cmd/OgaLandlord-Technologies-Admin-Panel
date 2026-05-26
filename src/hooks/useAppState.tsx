@@ -91,6 +91,7 @@ export default function useAppState() {
     const newAct: OgaRecentActivity = {
       id: `act-gen-${Date.now()}`,
       text,
+      agent: 'agent name', // can be extended to include actual agent name if relevant
       time: 'Just now'
     };
     setRecentActivities(prev => [newAct, ...prev.slice(0, 4)]);
@@ -191,7 +192,7 @@ export default function useAppState() {
     setModalReasonInput('');
     setModalScoreReduction(10);
     setModalExtendValue('3');
-    
+
     if (type === 'ban' || type === 'reduce' || type === 'suspend' || type === 'reject') {
       setModalTargetAgentId(targetId);
     } else if (type === 'remove') {
@@ -329,9 +330,9 @@ export default function useAppState() {
           if (s.id === modalTargetSubscriptionId) {
             const extraMonths = parseInt(modalExtendValue);
             const currentYear = new Date().getFullYear();
-            return { 
-              ...s, 
-              status: 'Active', 
+            return {
+              ...s,
+              status: 'Active',
               endDate: `Dec 31, ${currentYear + 1}` // simulate renewal
             };
           }
@@ -417,6 +418,7 @@ export default function useAppState() {
     modalExtendValue,
     setModalExtendValue,
     handleOpenModal,
+    toastMessage,
     handleOpenExtendSubModal,
     handleCloseModal,
     handleConfirmModalAction,

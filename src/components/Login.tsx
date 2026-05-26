@@ -15,7 +15,7 @@ export default function Login({ onLogin }: LoginProps) {
   const [password, setPassword] = useState('password');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent):any => {
     e.preventDefault();
     if (!email || !password) {
       setError('Please fill in all required fields.');
@@ -45,7 +45,7 @@ export default function Login({ onLogin }: LoginProps) {
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl shadow-green-950/5 border border-slate-100 p-8 z-10 transition-all">
         <div className="flex flex-col items-center mb-8 text-center">
           <div className="w-12 h-12 bg-[#004d2c] rounded-xl flex items-center justify-center text-white mb-4 shadow-md shadow-green-900/10">
-            <Sparkles size={24} />
+            <img src="/public/housekey.png" alt="ogalandlord logo icon" className='w-6'/>
           </div>
           <h1 className="text-2xl font-bold text-[#004d2c] tracking-tight">
             OgaLandlord Admin Panel
