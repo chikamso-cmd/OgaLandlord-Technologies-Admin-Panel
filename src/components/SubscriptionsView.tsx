@@ -129,7 +129,7 @@ export default function SubscriptionsView({
                 filteredSubs.map((sub) => (
                   <tr key={sub.id} className="hover:bg-[#f4fcf8]/50 transition-all">
                     
-                    <td className="py-3.5 px-5 font-bold text-slate-800">
+                    <td className="py-3.5 px-5 font-bold text-slate-800 text-[10px]">
                       {sub.agentName}
                       <span className="block text-[10px] text-slate-400 font-bold uppercase">{sub.id}</span>
                     </td>
@@ -140,15 +140,15 @@ export default function SubscriptionsView({
                       </span>
                     </td>
 
-                    <td className="py-3 px-5 text-slate-800 font-extrabold">
+                    <td className="py-3 px-5 text-slate-800 font-extrabold text-[10px]">
                       {sub.amount}
                     </td>
 
-                    <td className="py-3 px-5 text-slate-500 font-mono text-[11px]">
+                    <td className="py-3 px-5 text-slate-500 font-mono text-[10px]">
                       {sub.startDate}
                     </td>
 
-                    <td className="py-3 px-5 text-slate-500 font-mono text-[11px]">
+                    <td className="py-3 px-5 text-slate-500 font-mono text-[10px]">
                       {sub.endDate}
                     </td>
 
@@ -167,7 +167,7 @@ export default function SubscriptionsView({
                     <td className="py-3 px-5 text-right">
                       <button
                         onClick={() => onTriggerExtendModal(sub)}
-                        className="px-3 py-1 bg-white hover:bg-[#004d2c] hover:text-white text-[#004d2c] font-black border border-slate-200 hover:border-[#004d2c] rounded-lg transition-colors cursor-pointer"
+                        className="px-3 py-1 bg-white hover:bg-[#004d2c] hover:text-white text-[#004d2c] font-black border border-slate-200 hover:border-[#004d2c] rounded-lg transition-colors cursor-pointer text-[10px]"
                       >
                         Manage
                       </button>

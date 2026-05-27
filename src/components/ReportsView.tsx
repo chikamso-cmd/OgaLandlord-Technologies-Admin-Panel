@@ -388,22 +388,22 @@ export default function ReportsView({
               ) : (
                 filteredReports.map((report) => (
                   <tr key={report.id} className="hover:bg-[#f4fcf8]/50 transition-all font-medium">
-                    <td className="py-3.5 px-5 font-bold text-slate-800">
+                    <td className="py-3.5 px-5 font-bold text-slate-800 text-[10px]">
                       {report.reporter}
                     </td>
 
-                    <td className="py-3 px-5 text-slate-700">
+                    <td className="py-3 px-5 text-slate-700 text-[10px]">
                       <span className="font-bold hover:text-[#004d2c] cursor-pointer" onClick={() => setSelectedReportId(report.id)}>
                         {report.agentName}
                       </span>
                       <span className="block text-[10px] text-slate-400 font-semibold">{report.agentId}</span>
                     </td>
 
-                    <td className="py-3 px-5 text-slate-600 font-bold max-w-[150px] truncate">
+                    <td className="py-3 px-5 text-slate-600 font-bold max-w-[150px] truncate text-[10px]">
                       {report.reason}
                     </td>
 
-                    <td className="py-3 px-5 text-slate-500 font-semibold">
+                    <td className="py-3 px-5 text-slate-500 font-semibold text-[10px]">
                       {report.date}
                     </td>
 
