@@ -4,12 +4,12 @@
  */
 
 import { useState } from 'react';
-import { 
-  ArrowLeft, 
-  AlertTriangle, 
-  FileText, 
-  User, 
-  Clock, 
+import {
+  ArrowLeft,
+  AlertTriangle,
+  FileText,
+  User,
+  Clock,
   ExternalLink,
   ShieldAlert,
   ChevronRight,
@@ -19,13 +19,12 @@ import {
   FileCheck
 } from 'lucide-react';
 import { OgaReport, OgaAgent, OgaListing } from '../types';
+import ReportFilters from './reports/ReportFilters';
 
 interface ReportsViewProps {
   reports: OgaReport[];
   agents: OgaAgent[];
   listings: OgaListing[];
-  selectedReportId: string | null;
-  onSelectReport: (id: string | null) => void;
   onViewAgentProfile: (agentId: string) => void;
   onViewListingDetail: (listingId: string) => void;
   onMarkReviewed: (id: string) => void;
@@ -36,13 +35,12 @@ export default function ReportsView({
   reports,
   agents,
   listings,
-  selectedReportId,
-  onSelectReport,
   onViewAgentProfile,
   onViewListingDetail,
   onMarkReviewed,
   onTriggerModal
 }: ReportsViewProps) {
+  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [severityFilter, setSeverityFilter] = useState('all');
   const [internalNote, setInternalNote] = useState('');
@@ -78,10 +76,10 @@ export default function ReportsView({
 
     return (
       <div id="report-detail-wrapper" className="space-y-6">
-        
+
         {/* Back Link Nav */}
         <button
-          onClick={() => onSelectReport(null)}
+          onClick={() => setSelectedReportId(null)}
           className="flex items-center gap-2 text-slate-600 hover:text-[#004d2c] font-bold text-xs select-none uppercase tracking-wider cursor-pointer"
         >
           <ArrowLeft size={16} />
@@ -92,9 +90,8 @@ export default function ReportsView({
         <div className="bg-white p-5 rounded-xl border border-emerald-950/5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className={`px-2 py-0.5 text-[9px] font-extrabold rounded-md uppercase tracking-wide text-white ${
-                selectedReport.severity === 'High' ? 'bg-red-600 shadow-sm shadow-red-500/15' : 'bg-amber-500'
-              }`}>
+              <span className={`px-2 py-0.5 text-[9px] font-extrabold rounded-md uppercase tracking-wide text-white ${selectedReport.severity === 'High' ? 'bg-red-600 shadow-sm shadow-red-500/15' : 'bg-amber-500'
+                }`}>
                 {selectedReport.severity} Severity
               </span>
               <h3 className="text-base font-extrabold text-slate-800 tracking-tight leading-none truncate">
@@ -116,9 +113,8 @@ export default function ReportsView({
                 <span>Mark as Reviewed</span>
               </button>
             )}
-            <span className={`px-3 py-1 bg-slate-100 text-slate-700 text-xs font-extrabold rounded-lg ${
-              selectedReport.status === 'Resolved' ? 'bg-emerald-50 text-emerald-800 border border-emerald-100' : ''
-            }`}>
+            <span className={`px-3 py-1 bg-slate-100 text-slate-700 text-xs font-extrabold rounded-lg ${selectedReport.status === 'Resolved' ? 'bg-emerald-50 text-emerald-800 border border-emerald-100' : ''
+              }`}>
               Status: {selectedReport.status}
             </span>
           </div>
@@ -126,16 +122,16 @@ export default function ReportsView({
 
         {/* Content Columns Structure */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
+
           {/* Left: General complaints descriptions, evidence images */}
           <div className="lg:col-span-8 space-y-6">
-            
+
             {/* Case Details Summary Line */}
             <div className="bg-white p-5 rounded-xl border border-emerald-950/5 space-y-4">
               <h4 className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">
                 Case Details
               </h4>
-              
+
               <div className="grid grid-cols-3 gap-4 border-t border-b border-slate-50 py-3.5 text-xs">
                 <div>
                   <span className="text-slate-400 font-bold block mb-1 uppercase text-[10px]">Submitted Date</span>
@@ -173,9 +169,9 @@ export default function ReportsView({
                 <div className="border border-slate-100 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-12 rounded-lg bg-slate-100 overflow-hidden flex-shrink-0">
-                      <img 
-                        src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=150&q=80" 
-                        alt="Property preview" 
+                      <img
+                        src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=150&q=80"
+                        alt="Property preview"
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -228,12 +224,12 @@ export default function ReportsView({
               <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">
                 Previous reports logs against this agent
               </h4>
-              
+
               <div className="space-y-3">
                 {selectedReport.previousOffenses && selectedReport.previousOffenses.length > 0 ? (
                   selectedReport.previousOffenses.map((offense) => (
-                    <div 
-                      key={offense.id} 
+                    <div
+                      key={offense.id}
                       className="pb-3 border-b border-slate-50 last:border-b-0 last:pb-0"
                     >
                       <div className="flex items-center justify-between font-bold">
@@ -258,7 +254,7 @@ export default function ReportsView({
 
           {/* Right sidebar quick action panel and internal administrative note board */}
           <div className="lg:col-span-4 space-y-6">
-            
+
             {/* Target Reported Agent Box summary */}
             {relatedAgent && (
               <div className="bg-white p-5 rounded-xl border border-[#fee2e2] bg-red-50/10 space-y-4">
@@ -290,7 +286,7 @@ export default function ReportsView({
                   >
                     Ban Agent permanently
                   </button>
-                  
+
                   <div className="flex gap-2">
                     <button
                       onClick={() => onTriggerModal('suspend', relatedAgent.id)}
@@ -314,7 +310,7 @@ export default function ReportsView({
               <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">
                 Internal Memo Notes ({reportNotes.length})
               </h4>
-              
+
               <div className="space-y-2.5 max-h-48 overflow-y-auto">
                 {reportNotes.length === 0 ? (
                   <p className="text-[11px] text-slate-400 p-2 text-center">No internal notes logged. Write below.</p>
@@ -360,27 +356,12 @@ export default function ReportsView({
 
   return (
     <div id="reports-view" className="space-y-6">
-      
-      {/* Control panel & filter */}
-      <div className="bg-white p-4 rounded-xl border border-emerald-950/5 flex items-center justify-between">
-        <div>
-          <h2 className="text-sm font-extrabold text-slate-800 tracking-wider uppercase">
-            Tenant Complaints & Disputes
-          </h2>
-          <p className="text-[11px] text-slate-400 block mt-1 hover:underline">Moderating platform security integrity</p>
-        </div>
 
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="bg-slate-50 text-slate-700 px-3 py-1.5 text-xs border border-slate-200 outline-none rounded-lg focus:border-[#004d2c] font-semibold w-36 select-none"
-        >
-          <option value="all">All statuses</option>
-          <option value="Open">Open cases</option>
-          <option value="Reviewed">Reviewed</option>
-          <option value="Resolved">Resolved</option>
-        </select>
-      </div>
+      {/* Control panel & filter */}
+      <ReportFilters
+        statusFilter={statusFilter}
+        onStatusChange={setStatusFilter}
+      />
 
       {/* Reports Table Grid */}
       <div className="bg-white rounded-xl border border-emerald-950/5 overflow-hidden">
@@ -412,7 +393,7 @@ export default function ReportsView({
                     </td>
 
                     <td className="py-3 px-5 text-slate-700">
-                      <span className="font-bold hover:text-[#004d2c] cursor-pointer" onClick={() => onSelectReport(report.id)}>
+                      <span className="font-bold hover:text-[#004d2c] cursor-pointer" onClick={() => setSelectedReportId(report.id)}>
                         {report.agentName}
                       </span>
                       <span className="block text-[10px] text-slate-400 font-semibold">{report.agentId}</span>
@@ -427,28 +408,26 @@ export default function ReportsView({
                     </td>
 
                     <td className="py-3 px-5 text-center">
-                      <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase ${
-                        report.severity === 'High' ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-amber-50 text-amber-700'
-                      }`}>
+                      <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase ${report.severity === 'High' ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-amber-50 text-amber-700'
+                        }`}>
                         {report.severity}
                       </span>
                     </td>
 
                     <td className="py-3 px-5">
-                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wide border ${
-                        report.status === 'Resolved' 
-                          ? 'bg-emerald-50 text-emerald-800 border-emerald-100' 
-                          : report.status === 'Reviewed' 
-                          ? 'bg-blue-50 text-blue-700 border-blue-100'
-                          : 'bg-red-50 text-red-600 border-red-100'
-                      }`}>
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wide border ${report.status === 'Resolved'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-100'
+                          : report.status === 'Reviewed'
+                            ? 'bg-blue-50 text-blue-700 border-blue-100'
+                            : 'bg-red-50 text-red-600 border-red-100'
+                        }`}>
                         {report.status}
                       </span>
                     </td>
 
                     <td className="py-3 px-5 text-right">
                       <button
-                        onClick={() => onSelectReport(report.id)}
+                        onClick={() => setSelectedReportId(report.id)}
                         className="px-3 py-1 bg-white hover:bg-[#004d2c] hover:text-white text-[#004d2c] font-bold border border-slate-200 hover:border-[#004d2c] rounded-lg transition-colors cursor-pointer"
                       >
                         View

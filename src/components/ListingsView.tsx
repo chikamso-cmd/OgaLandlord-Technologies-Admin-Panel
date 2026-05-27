@@ -3,27 +3,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
-import { 
-  MapPin, 
-  User, 
-  Trash2, 
-  CheckCheck, 
-  Copy, 
-  Eye, 
-  ArrowLeft, 
-  Clock, 
-  Info,
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import {
+  MapPin,
+  User,
+  Trash2,
+  CheckCheck,
+  Eye,
+  ArrowLeft,
   Building,
   Image as ImageIcon
 } from 'lucide-react';
 import { OgaListing, OgaAgent } from '../types';
+import ListingFilters from './listings/ListingFilters';
 
 interface ListingsViewProps {
   listings: OgaListing[];
   agents: OgaAgent[];
-  selectedListingId: string | null;
-  onSelectListing: (id: string | null) => void;
   onApproveListing: (id: string) => void;
   onTriggerRemoveListingModal: (id: string) => void;
   onViewAgentProfile: (agentId: string) => void;
@@ -33,17 +30,27 @@ interface ListingsViewProps {
 export default function ListingsView({
   listings,
   agents,
-  selectedListingId,
-  onSelectListing,
   onApproveListing,
   onTriggerRemoveListingModal,
   onViewAgentProfile,
   initialFilter = 'all'
 }: ListingsViewProps) {
+  const location = useLocation();
+  const routeState = location.state as { selectedListingId?: string } | null;
+  const [selectedListingId, setSelectedListingId] = useState<string | null>(routeState?.selectedListingId ?? null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState(initialFilter);
   const [areaFilter, setAreaFilter] = useState('all');
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (routeState?.selectedListingId) {
+      setSelectedListingId(routeState.selectedListingId);
+    }
+  }, [routeState?.selectedListingId]);
+
+  const handleSelectListing = (id: string | null) => {
+    setSelectedListingId(id);
+  };
 
   // Find selected listing
   const selectedListing = listings.find(l => l.id === selectedListingId);
@@ -55,27 +62,21 @@ export default function ListingsView({
     setAreaFilter('all');
   };
 
-  // Copy listing link simulation
-  const handleCopyLink = (id: string) => {
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 1500);
-  };
-
   // Filter listings
   const filteredListings = listings.filter(l => {
-    const matchesSearch = 
-      l.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      l.area.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const matchesSearch =
+      l.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      l.area.toLowerCase().includes(searchTerm.toLowerCase()) ||
       l.agentName.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = 
-      statusFilter === 'all' || 
+    const matchesStatus =
+      statusFilter === 'all' ||
       l.status === statusFilter;
 
-    const matchesArea = 
-      areaFilter === 'all' || 
-      (areaFilter === 'Lekki' && l.area.includes('Lekki')) || 
-      (areaFilter === 'Challenge' && l.area.includes('Challenge')) || 
+    const matchesArea =
+      areaFilter === 'all' ||
+      (areaFilter === 'Lekki' && l.area.includes('Lekki')) ||
+      (areaFilter === 'Challenge' && l.area.includes('Challenge')) ||
       (areaFilter === 'Akobo' && l.area.includes('Akobo'));
 
     return matchesSearch && matchesStatus && matchesArea;
@@ -84,10 +85,10 @@ export default function ListingsView({
   if (selectedListing) {
     return (
       <div id="listing-detail-wrapper" className="space-y-6">
-        
+
         {/* Navigation Breadcrumb Back link */}
         <button
-          onClick={() => onSelectListing(null)}
+          onClick={() => handleSelectListing(null)}
           className="flex items-center gap-2 text-slate-600 hover:text-[#004d2c] font-bold text-xs select-none uppercase tracking-wider cursor-pointer"
         >
           <ArrowLeft size={16} />
@@ -126,28 +127,27 @@ export default function ListingsView({
 
         {/* Graphic Hero, price overlay panel, and information structure */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
+
           {/* Left panel interior showcase & general parameters */}
           <div className="lg:col-span-8 space-y-6">
-            
+
             {/* Hero Property Frame */}
             <div className="relative aspect-video rounded-xl bg-slate-100 overflow-hidden border border-emerald-950/5 shadow-xs">
-              <img 
-                src={selectedListing.image} 
-                alt="Property main view" 
+              <img
+                src={selectedListing.image}
+                alt="Property main view"
                 className="w-full h-full object-cover"
               />
               <div className="absolute top-4 left-4 flex gap-2">
-                <span className={`px-2.5 py-1 text-[10px] font-extrabold rounded-md shadow-md uppercase tracking-wider leading-none ${
-                  selectedListing.status === 'Verified'
-                    ? 'bg-emerald-500 text-white'
-                    : selectedListing.status === 'Pending'
+                <span className={`px-2.5 py-1 text-[10px] font-extrabold rounded-md shadow-md uppercase tracking-wider leading-none ${selectedListing.status === 'Verified'
+                  ? 'bg-emerald-500 text-white'
+                  : selectedListing.status === 'Pending'
                     ? 'bg-amber-500 text-white'
                     : 'bg-red-500 text-white'
-                }`}>
+                  }`}>
                   {selectedListing.status}
                 </span>
-                
+
                 <span className="px-2.5 py-1 bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold rounded-md leading-none">
                   {selectedListing.timeAgo}
                 </span>
@@ -200,16 +200,16 @@ export default function ListingsView({
                 <ImageIcon size={14} className="text-slate-400" />
                 <span>Media gallery uploads</span>
               </h4>
-              
+
               <div className="grid grid-cols-3 gap-3">
                 <div className="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
-                  <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=300&q=80" alt="Int Room 1" className="w-[100%] h-full object-cover rounded-lg" />
+                  <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=300&q=80" alt="Int Room 1" className="w-full h-full object-cover rounded-lg" />
                 </div>
                 <div className="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
-                  <img src="https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=300&q=80" alt="Int Room 2" className="w-[100%] h-full object-cover rounded-lg" />
+                  <img src="https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=300&q=80" alt="Int Room 2" className="w-full h-full object-cover rounded-lg" />
                 </div>
                 <div className="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200 relative">
-                  <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=300&q=80" alt="Int Room 3" className="w-[100%] h-full object-cover opacity-60 blur-xxs rounded-lg" />
+                  <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=300&q=80" alt="Int Room 3" className="w-full h-full object-cover opacity-60 blur-xxs rounded-lg" />
                   <div className="absolute inset-0 bg-black/45 flex items-center justify-center rounded-lg">
                     <span className="text-[11px] font-extrabold text-white uppercase tracking-wider text-center px-1">
                       + 4 photos
@@ -223,7 +223,7 @@ export default function ListingsView({
 
           {/* Right panel side status, direct price and contract fee layout */}
           <div className="lg:col-span-4 space-y-6">
-            
+
             {/* Rental Fee Breakdown Column */}
             <div className="bg-white p-5 rounded-xl border border-emerald-950/5 space-y-5">
               <div>
@@ -246,7 +246,7 @@ export default function ListingsView({
                 </div>
 
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400 font-medium font-semibold text-orange-600">Caution / Damage fee</span>
+                  <span className="font-semibold text-orange-600">Caution / Damage fee</span>
                   <span className="font-bold text-slate-700">{selectedListing.breakdown.damageCharge}</span>
                 </div>
 
@@ -263,13 +263,13 @@ export default function ListingsView({
             </div>
 
             {/* Direct Agent assignment detail profile card */}
-            <div className="bg-white p-5 rounded-xl border border-[#e8f7f0] bg-[#f4fbf7]/40 space-y-4">
+            <div className="p-5 rounded-xl border border-[#e8f7f0] bg-[#f4fbf7]/40 space-y-4">
               <h4 className="text-xs font-extrabold text-slate-800 tracking-wider uppercase">
                 Listed Agent profile
               </h4>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 min-w-[40px] bg-slate-200 rounded-full overflow-hidden border border-[#00bf71]/30">
-                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt={selectedListing.agentName} className="w-[100%] h-full object-cover" />
+                <div className="w-10 h-10 min-w-10 bg-slate-200 rounded-full overflow-hidden border border-[#00bf71]/30">
+                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt={selectedListing.agentName} className="w-full h-full object-cover" />
                 </div>
                 <div className="overflow-hidden">
                   <h5 className="text-xs font-bold text-slate-800 leading-tight truncate">
@@ -297,143 +297,102 @@ export default function ListingsView({
 
   return (
     <div id="listings-view" className="space-y-6">
-      
-      {/* Listings Table Control Search bar */}
-      <div className="bg-white p-4 rounded-xl border border-emerald-950/5 flex flex-col md:flex-row gap-3.5 items-center justify-between">
-        <div className="flex-1 w-full relative">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by flat title, location, neighborhood, or agent name..."
-            className="w-full pl-4 pr-4 py-1.5 text-xs bg-slate-50/80 hover:bg-slate-50 font-medium text-slate-800 border border-slate-200 rounded-lg outline-none focus:border-[#004d2c] transition-all"
-          />
+    <div>
+      <h1 className="text-lg font-extrabold text-slate-800 tracking-tight leading-none">
+         Listings Management
+      </h1>
+      <span className="text-[10px] text-slate-400 font-normal tracking-wider block mt-1">
+        Review and moderate property listings 
+      </span>
+    </div>
+
+      <ListingFilters
+        searchTerm={searchTerm}
+        statusFilter={statusFilter}
+        areaFilter={areaFilter}
+        onSearchTermChange={setSearchTerm}
+        onStatusFilterChange={setStatusFilter}
+        onAreaFilterChange={setAreaFilter}
+        onReset={resetFilters}
+      />
+
+      <div className="bg-white rounded-xl border border-emerald-950/5 overflow-hidden shadow-xs">
+        <div className="overflow-x-auto">
+          <table className="min-w-full border-collapse text-left">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <th className="py-4 px-5">Property</th>
+                <th className="py-4 px-5">Area</th>
+                <th className="py-4 px-5">Price</th>
+                <th className="py-4 px-5">Agent</th>
+                <th className="py-4 px-5">Status</th>
+                <th className="py-4 px-5 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-xs">
+              {filteredListings.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-slate-400 font-medium">
+                    No active listings matching your search criterion. Update status filters above.
+                  </td>
+                </tr>
+              ) : (
+                filteredListings.map((listing) => (
+                  <tr key={listing.id} className="hover:bg-[#f4fcf8]/50 transition-colors">
+                    <td className="py-4 px-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-10 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                          <img src={listing.image} alt={listing.title} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-slate-900 font-bold text-sm truncate text-[10px]">{listing.title}</p>
+                          <p className="text-[10px] text-slate-400 mt-1 truncate">{listing.id}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-5 text-slate-600 text-[10px]">{listing.area}</td>
+                    <td className="py-4 px-5 text-slate-900 font-bold text-[10px]">{listing.price}</td>
+                    <td className="py-4 px-5 text-slate-700 text-[10px]">{listing.agentName}</td>
+                    <td className="py-4 px-5">
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${listing.status === 'Verified'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                          : listing.status === 'Pending'
+                            ? 'bg-amber-50 text-amber-700 border border-amber-100'
+                            : 'bg-red-50 text-red-700 border border-red-100'
+                        }`}>
+                        {listing.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-5 text-right">
+                      <button
+                        type="button"
+                        onClick={() => handleSelectListing(listing.id)}
+                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1 text-[10px] font-bold text-[#004d2c] transition-colors hover:bg-[#004d2c] hover:text-white"
+                      >
+                        <Eye size={12} />
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
 
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-slate-50 text-slate-700 px-3 py-1.5 text-xs border border-slate-200 outline-none rounded-lg focus:border-[#004d2c] font-semibold w-full md:w-36"
-          >
-            <option value="all">All Statuses</option>
-            <option value="Verified">Verified Only</option>
-            <option value="Pending">Pending Only</option>
-            <option value="Removed">Removed Only</option>
-          </select>
-
-          <select
-            value={areaFilter}
-            onChange={(e) => setAreaFilter(e.target.value)}
-            className="bg-slate-50 text-slate-700 px-3 py-1.5 text-xs border border-slate-200 outline-none rounded-lg focus:border-[#004d2c] font-semibold w-full md:w-32"
-          >
-            <option value="all">All Areas</option>
-            <option value="Lekki">Lekki Phase 1</option>
-            <option value="Challenge">Challenge, IB</option>
-            <option value="Akobo">Akobo, IB</option>
-          </select>
-
-          {(searchTerm || statusFilter !== 'all' || areaFilter !== 'all') && (
-            <button
-              onClick={resetFilters}
-              className="text-[#004d2c] text-xs font-extrabold hover:underline whitespace-nowrap px-1 cursor-pointer"
-            >
-              Clear
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Grid of Listings */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filteredListings.length === 0 ? (
-          <div className="col-span-full bg-white p-12 text-center text-slate-400 text-xs border border-slate-200 rounded-xl">
-            No active listings matching your search criterion. Update status filters above.
+        {/* <div className="px-5 py-3 text-[11px] text-slate-500 bg-slate-50 border-t border-slate-100">
+          Showing {filteredListings.length} of {listings.length} listings
+        </div> */}
+        <div className="p-4 bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-t border-slate-100 flex items-center justify-between">
+          <span>Showing {filteredListings.length} of {listings.length} listings</span>
+          <div className="flex gap-1.5">
+            <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">Previous</button>
+            <button className="px-2.5 py-1 bg-[#004d2c] text-white rounded cursor-pointer">1</button>
+            <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">2</button>
+            <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">Next</button>
           </div>
-        ) : (
-          filteredListings.map((listing) => (
-            <div 
-              key={listing.id}
-              className="bg-white rounded-xl border border-emerald-950/5 overflow-hidden flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow"
-            >
-              {/* Card Image segment */}
-              <div className="relative aspect-video bg-slate-100">
-                <img 
-                  src={listing.image} 
-                  alt={listing.title} 
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-2.5 left-2.5 flex gap-1.5 items-center">
-                  <span className={`px-2 py-0.5 text-[9px] font-extrabold rounded-md uppercase tracking-wider text-white shadow-sm shadow-black/10 ${
-                    listing.status === 'Verified' 
-                      ? 'bg-emerald-600' 
-                      : listing.status === 'Pending' 
-                      ? 'bg-amber-500' 
-                      : 'bg-red-500'
-                  }`}>
-                    {listing.status}
-                  </span>
-                </div>
-                
-                <button
-                  onClick={() => handleCopyLink(listing.id)}
-                  title="Copy Listing Code Reference"
-                  className="absolute bottom-2.5 right-2 bg-black/60 hover:bg-slate-800/80 p-1.5 text-white rounded-lg transition-colors cursor-pointer"
-                >
-                  {copiedId === listing.id ? <CheckCheck size={12} className="text-emerald-400" /> : <Copy size={12} />}
-                </button>
-              </div>
-
-              {/* Card Detail metrics */}
-              <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-base font-black text-[#004d2c] tracking-tight">
-                      {listing.price}
-                    </span>
-                    <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
-                      {listing.id}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-800 leading-snug line-clamp-1 hover:text-[#004d2c] cursor-pointer" onClick={() => onSelectListing(listing.id)}>
-                      {listing.title}
-                    </h4>
-                    <p className="text-[10px] text-slate-400 flex items-center gap-0.5 mt-1 font-medium">
-                      <MapPin size={11} className="text-slate-300" />
-                      <span className="truncate">{listing.area}</span>
-                    </p>
-                  </div>
-                </div>
-
-                {/* Foot bar info */}
-                <div className="border-t border-slate-50 pt-3 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 overflow-hidden">
-                    <div className="w-5 h-5 bg-slate-100 rounded-full flex items-center justify-center text-[9px] font-bold text-slate-600 font-mono flex-shrink-0">
-                      {listing.agentName[0]}
-                    </div>
-                    <span className="text-[10px] text-slate-500 font-semibold truncate max-w-[90px]">
-                      {listing.agentName}
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() => onSelectListing(listing.id)}
-                    className="p-1 px-3 bg-white hover:bg-[#004d2c] hover:text-white text-[#004d2c] text-[10px] font-bold border border-slate-200 hover:border-[#004d2c] rounded-lg transition-all cursor-pointer flex items-center gap-1"
-                  >
-                    <Eye size={11} />
-                    <span>View Detail</span>
-                  </button>
-                </div>
-
-              </div>
-
-            </div>
-          ))
-        )}
+        </div>
       </div>
-
     </div>
   );
 }

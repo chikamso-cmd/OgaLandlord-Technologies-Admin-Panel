@@ -41,8 +41,6 @@ export default function useAppState() {
 
   // Drilldown Selected IDs (Agent profile detail, listing detail, complaint detail)
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
-  const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
-  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
 
   // Global search input
   const [searchQuery, setSearchQuery] = useState('');
@@ -81,8 +79,6 @@ export default function useAppState() {
   const handleLogout = () => {
     setIsLoggedIn(false);
     setSelectedAgentId(null);
-    setSelectedListingId(null);
-    setSelectedReportId(null);
     setActiveTab('dashboard');
   };
 
@@ -318,7 +314,6 @@ export default function useAppState() {
 
         insertActivityLog(`Removed listed property index: ${target.title}`);
         fireToast(`Listing "${target.title}" successfully removed.`);
-        setSelectedListingId(null); // return back
       }
     }
 
@@ -362,8 +357,6 @@ export default function useAppState() {
   const handleTriggerViewTab = (tab: DashboardTab, filter?: string) => {
     setActiveTab(tab);
     setSelectedAgentId(null);
-    setSelectedListingId(null);
-    setSelectedReportId(null);
 
     // Apply dashboard actions logic (left intentionally minimal)
     if (tab === 'agents' && filter === 'Pending') {
@@ -397,10 +390,6 @@ export default function useAppState() {
     // selections
     selectedAgentId,
     setSelectedAgentId,
-    selectedListingId,
-    setSelectedListingId,
-    selectedReportId,
-    setSelectedReportId,
     // search & mobile
     searchQuery,
     handleGlobalSearchChange,
