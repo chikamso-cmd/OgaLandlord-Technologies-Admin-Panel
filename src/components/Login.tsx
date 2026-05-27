@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { Mail, Lock, Sparkles, Home, MapPin, Key } from 'lucide-react';
+import { Mail, Lock, Home, MapPin, Key, Eye, EyeOff } from 'lucide-react';
 
 interface LoginProps {
   onLogin: (email: string) => void;
@@ -14,8 +14,9 @@ export default function Login({ onLogin }: LoginProps) {
   const [email, setEmail] = useState('admin@ogalandlord.com');
   const [password, setPassword] = useState('password');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent):any => {
+  const handleSubmit = (e: React.FormEvent): any => {
     e.preventDefault();
     if (!email || !password) {
       setError('Please fill in all required fields.');
@@ -45,7 +46,7 @@ export default function Login({ onLogin }: LoginProps) {
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl shadow-green-950/5 border border-slate-100 p-8 z-10 transition-all">
         <div className="flex flex-col items-center mb-8 text-center">
           <div className="w-12 h-12 bg-[#004d2c] rounded-xl flex items-center justify-center text-white mb-4 shadow-md shadow-green-900/10">
-            <img src="/public/housekey.png" alt="ogalandlord logo icon" className='w-6'/>
+            <img src="/public/housekey.png" alt="ogalandlord logo icon" className='w-6' />
           </div>
           <h1 className="text-2xl font-bold text-[#004d2c] tracking-tight">
             OgaLandlord Admin Panel
@@ -93,12 +94,20 @@ export default function Login({ onLogin }: LoginProps) {
               </span>
               <input
                 id="login-password-input"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 focus:bg-white text-sm text-slate-800 rounded-lg border border-slate-200 outline-none focus:border-[#004d2c] focus:ring-1 focus:ring-[#004d2c] transition-all"
+                className="w-full pl-10 pr-10 py-2.5 bg-slate-50 hover:bg-slate-100/50 focus:bg-white text-sm text-slate-800 rounded-lg border border-slate-200 outline-none focus:border-[#004d2c] focus:ring-1 focus:ring-[#004d2c] transition-all"
                 placeholder="Enter your password"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(prev => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
             </div>
           </div>
 

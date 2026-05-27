@@ -78,12 +78,30 @@ export default function AppLayout({
 
     return (
         <>
-            <div className="hidden md:block shrink-0">
-                <Sidebar
-                    activeTab={activeTab}
-                    onTabChange={navigateToTab}
-                    onLogout={handleLogout}
-                />
+            <div className="flex h-screen bg-[#f3faf6] overflow-hidden select-none font-sans">
+                <div className="hidden md:block shrink-0">
+                    <Sidebar
+                        activeTab={activeTab}
+                        onTabChange={navigateToTab}
+                        onLogout={handleLogout}
+                    />
+                </div>
+
+                <div className="flex-1 flex flex-col min-w-0">
+                    <Header
+                        onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
+                        searchQuery={searchQuery}
+                        onSearchChange={handleGlobalSearchChange}
+                        alerts={alerts}
+                        onTriggerAlertClick={handleAlertClick}
+                        title={activeTab}
+                    />
+
+                    <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 relative">
+                        <GlobalToast message={toastMessage} />
+                        <Outlet />
+                    </main>
+                </div>
             </div>
 
             {isMobileMenuOpen && (
@@ -102,22 +120,6 @@ export default function AppLayout({
                     </div>
                 </div>
             )}
-
-            <div className="flex-1 flex flex-col min-w-0">
-                <Header
-                    onToggleMobileMenu={() => setIsMobileMenuOpen(true)}
-                    searchQuery={searchQuery}
-                    onSearchChange={handleGlobalSearchChange}
-                    alerts={alerts}
-                    onTriggerAlertClick={handleAlertClick}
-                    title={activeTab}
-                />
-
-                <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 relative">
-                    <GlobalToast message={toastMessage} />
-                    <Outlet />
-                </main>
-            </div>
 
             <ActionModal
                 activeModal={activeModal}

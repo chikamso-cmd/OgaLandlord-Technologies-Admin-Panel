@@ -32,10 +32,6 @@ export default function App() {
     adminUsers,
     selectedAgentId,
     setSelectedAgentId,
-    selectedListingId,
-    setSelectedListingId,
-    selectedReportId,
-    setSelectedReportId,
     searchQuery,
     handleGlobalSearchChange,
     isMobileMenuOpen,
@@ -69,9 +65,8 @@ export default function App() {
   };
 
   const handleViewListingDetail = (lstId: string) => {
-    setSelectedListingId(lstId);
     setActiveTab('listings');
-    navigate('/listings');
+    navigate('/listings', { state: { selectedListingId: lstId } });
   };
 
   if (!isLoggedIn) {
@@ -139,8 +134,6 @@ export default function App() {
             <ListingsView
               listings={listings}
               agents={agents}
-              selectedListingId={selectedListingId}
-              onSelectListing={setSelectedListingId}
               onApproveListing={handleApproveListing}
               onTriggerRemoveListingModal={(id) => handleOpenModal('remove', id)}
               onViewAgentProfile={handleViewAgentProfile}
@@ -155,8 +148,6 @@ export default function App() {
               reports={reports}
               agents={agents}
               listings={listings}
-              selectedReportId={selectedReportId}
-              onSelectReport={setSelectedReportId}
               onViewAgentProfile={handleViewAgentProfile}
               onViewListingDetail={handleViewListingDetail}
               onMarkReviewed={handleMarkReportReviewed}
