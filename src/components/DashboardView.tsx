@@ -171,7 +171,7 @@ export default function DashboardView({
           <div className="flex gap-2.5">
             <button
               onClick={() => onTriggerTabChange('agents', 'Pending')}
-              className="w-full flex items-center gap-3 px-4 py-2.5 bg-[#004d2c] hover:bg-[#00381e] text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              className="w-full flex items-center gap-3 px-4 py-2.5 bg-[#004d2c] hover:bg-[#00381e] text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer"
             >
               <CheckCircle2 size={15} />
               <span>Verify Agents</span>
@@ -179,7 +179,7 @@ export default function DashboardView({
 
             <button
               onClick={() => onTriggerTabChange('reports')}
-              className="w-full flex items-center gap-3 px-4 py-2.5 bg-white hover:bg-slate-50 text-[#004d2c] border border-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              className="w-full flex items-center gap-3 px-4 py-2.5 bg-white hover:bg-slate-50 text-[#004d2c] border border-slate-200 text-[10px] font-bold rounded-lg transition-colors cursor-pointer"
             >
               <AlertTriangle size={15} className="text-amber-500" />
               <span>Review Reports</span>
@@ -187,7 +187,7 @@ export default function DashboardView({
 
             <button
               onClick={() => onTriggerTabChange('listings', 'Pending')}
-              className="w-full flex items-center gap-3 px-4 py-2.5 bg-white hover:bg-slate-50 text-[#004d2c] border border-slate-200 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+              className="w-full flex items-center gap-3 px-4 py-2.5 bg-white hover:bg-slate-50 text-[#004d2c] border border-slate-200 text-[10px] font-bold rounded-lg transition-colors cursor-pointer"
             >
               <FileCheck2 size={15} />
               <span>Approve Listings</span>
@@ -209,10 +209,10 @@ export default function DashboardView({
                 <div className="flex items-center gap-3">
                   <span className="w-1.5 h-1.5 bg-emerald-700 rounded-full shrink-0"></span>
                   <div className='flex  flex-col gap-2'>
-                    <p className="text-slate-700 leading-normal font-bold text-sm">
+                    <p className="text-slate-700 leading-normal font-bold text-[10px]">
                       {act.text}
                     </p>
-                    <p className="text-xs text-slate-500">Agent: { act.agent}</p>
+                    <p className="text-[10px] text-slate-500">Agent: { act.agent}</p>
                   </div>
                 </div>
                 <span className="text-[10px] text-slate-400 whitespace-nowrap ml-2">

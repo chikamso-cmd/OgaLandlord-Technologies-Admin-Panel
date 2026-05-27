@@ -11,10 +11,10 @@ export default function ReportFilters({
         <div className="bg-white p-4 rounded-xl border border-emerald-950/5 flex items-center justify-between">
             <div>
                 <h2 className="text-sm font-extrabold text-slate-800 tracking-wider uppercase">
-                    Tenant Complaints & Disputes
+                    Reports & Complaints
                 </h2>
                 <p className="text-[11px] text-slate-400 block mt-1 hover:underline">
-                    Moderating platform security integrity
+                    Review and manage user reports against agent
                 </p>
             </div>
 
