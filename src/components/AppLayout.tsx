@@ -1,6 +1,6 @@
 import { useEffect, type FormEvent } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { DashboardTab, OgaAlert, ModalActionType } from '../types';
+import { DashboardTab, OgaAlert, ModalActionType, OgaAgent } from '../types';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import GlobalToast from './GlobalToast';
@@ -27,6 +27,7 @@ interface AppLayoutProps {
     setIsMobileMenuOpen: (isOpen: boolean) => void;
     toastMessage: string | null;
     activeModal: ModalActionType | null;
+    modalTargetAgent: OgaAgent | null;
     modalReasonInput: string;
     modalScoreReduction: number;
     modalExtendValue: '1' | '3' | '6' | '12';
@@ -49,6 +50,7 @@ export default function AppLayout({
     setIsMobileMenuOpen,
     toastMessage,
     activeModal,
+    modalTargetAgent,
     modalReasonInput,
     modalScoreReduction,
     modalExtendValue,
@@ -123,6 +125,7 @@ export default function AppLayout({
 
             <ActionModal
                 activeModal={activeModal}
+                modalTargetAgent={modalTargetAgent}
                 modalReasonInput={modalReasonInput}
                 modalScoreReduction={modalScoreReduction}
                 modalExtendValue={modalExtendValue}

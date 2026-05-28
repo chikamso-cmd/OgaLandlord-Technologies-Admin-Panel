@@ -4,17 +4,17 @@
  */
 
 import { 
-  Home, 
   Users, 
-  HomeIcon, 
-  AlertTriangle, 
+  HomeIcon,  
   CreditCard, 
   Settings, 
   X, 
-  Sparkles,
-  LogOut
+  LogOut,
+  LayoutGrid,
+  Flag
 } from 'lucide-react';
 import { DashboardTab } from '../types';
+import { Link } from 'react-router-dom';
 
 interface SidebarProps {
   activeTab: DashboardTab;
@@ -35,10 +35,10 @@ export default function Sidebar({
 }: SidebarProps) {
   
   const menuItems = [
-    { id: 'dashboard' as DashboardTab, label: 'Dashboard', icon: Home },
+    { id: 'dashboard' as DashboardTab, label: 'Dashboard', icon: LayoutGrid },
     { id: 'agents' as DashboardTab, label: 'Agents', icon: Users, badge: pendingVerificationsCount },
     { id: 'listings' as DashboardTab, label: 'Listings', icon: HomeIcon },
-    { id: 'reports' as DashboardTab, label: 'Reports', icon: AlertTriangle, badge: openReportsCount },
+    { id: 'reports' as DashboardTab, label: 'Reports', icon: Flag, badge: openReportsCount },
     { id: 'subscriptions' as DashboardTab, label: 'Subscriptions', icon: CreditCard },
     { id: 'settings' as DashboardTab, label: 'Settings', icon: Settings }
   ];
@@ -100,7 +100,7 @@ export default function Sidebar({
                   />
                   <span>{item.label}</span>
                 </div>
-                {item.badge !== undefined && item.badge > 0 && (
+                {/* {item.badge !== undefined && item.badge > 0 && (
                   <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${
                     isActive 
                       ? 'bg-[#004d2c] text-white' 
@@ -108,7 +108,7 @@ export default function Sidebar({
                   }`}>
                     {item.badge}
                   </span>
-                )}
+                )} */}
               </button>
             );
           })}
@@ -131,13 +131,14 @@ export default function Sidebar({
               </p>
             </div>
           </div>
-          <button 
-            onClick={onLogout}
-            title="Log out session"
-            className="p-1.5 text-green-300 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
-          >
-            <LogOut size={15} />
-          </button>
+          <Link to="/login">
+            <button
+              title="Log out session"
+              className="p-1.5 text-green-300 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+            >
+              <LogOut size={15} />
+            </button>
+          </Link>
         </div>
       </div>
     </div>

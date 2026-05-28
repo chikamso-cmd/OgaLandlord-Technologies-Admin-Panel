@@ -13,7 +13,8 @@ import {
   Eye,
   ArrowLeft,
   Building,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Copy
 } from 'lucide-react';
 import { OgaListing, OgaAgent } from '../types';
 import ListingFilters from './listings/ListingFilters';
@@ -354,7 +355,7 @@ export default function ListingsView({
                     <td className="py-4 px-5 text-slate-900 font-bold text-[10px]">{listing.price}</td>
                     <td className="py-4 px-5 text-slate-700 text-[10px]">{listing.agentName}</td>
                     <td className="py-4 px-5">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${listing.status === 'Verified'
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold  tracking-wide ${listing.status === 'Verified'
                           ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
                           : listing.status === 'Pending'
                             ? 'bg-amber-50 text-amber-700 border border-amber-100'
@@ -364,14 +365,24 @@ export default function ListingsView({
                       </span>
                     </td>
                     <td className="py-4 px-5 text-right">
+                     <div className=" flex gap-1">
                       <button
                         type="button"
                         onClick={() => handleSelectListing(listing.id)}
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1 text-[10px] font-bold text-[#004d2c] transition-colors hover:bg-[#004d2c] hover:text-white"
+                          className="inline-flex items-center gap-2 rounded-lg  px-3 py-1 text-[10px] font-bold text-red-400 transition-colors   cursor-pointer"
                       >
-                        <Eye size={12} />
-                        View
+                        <Copy size={12} />
+                        
                       </button>
+                       <button
+                        type="button"
+                        onClick={() => handleSelectListing(listing.id)}
+                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1 text-[10px] font-bold text-[#004d2c] transition-colors hover:bg-[#004d2c] hover:text-white cursor-pointer"
+                      >
+                          {/* <Eye size={12} /> */}
+                          View
+                      </button>
+                     </div>
                     </td>
                   </tr>
                 ))

@@ -5,12 +5,14 @@
 
 import React, { useState } from 'react';
 import { Mail, Lock, Home, MapPin, Key, Eye, EyeOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginProps {
   onLogin: (email: string) => void;
 }
 
 export default function Login({ onLogin }: LoginProps) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('admin@ogalandlord.com');
   const [password, setPassword] = useState('password');
   const [error, setError] = useState('');
@@ -20,10 +22,12 @@ export default function Login({ onLogin }: LoginProps) {
     e.preventDefault();
     if (!email || !password) {
       setError('Please fill in all required fields.');
+      console.log("login error", email ,password)
       return;
     }
     setError('');
     onLogin(email);
+    navigate('/dashboard')
   };
 
   return (
@@ -42,19 +46,20 @@ export default function Login({ onLogin }: LoginProps) {
       {/* Decorative alignment space */}
       <div className="h-4"></div>
 
+      {/* Content header */}
+      <div className="flex flex-col items-center mb-8 text-center">
+        <div className="w-12 h-12 bg-[#004d2c] rounded-xl flex items-center justify-center text-white mb-4 shadow-md shadow-green-900/10">
+          <img src="/public/housekey.png" alt="ogalandlord logo icon" className='w-6' />
+        </div>
+        <h1 className="text-2xl font-bold text-[#004d2c] tracking-tight">
+          OgaLandlord Admin Panel
+        </h1>
+        <p className="text-sm text-emerald-700 mt-1">
+          Sign in to access the admin panel
+        </p>
+      </div>
       {/* Content Form box */}
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl shadow-green-950/5 border border-slate-100 p-8 z-10 transition-all">
-        <div className="flex flex-col items-center mb-8 text-center">
-          <div className="w-12 h-12 bg-[#004d2c] rounded-xl flex items-center justify-center text-white mb-4 shadow-md shadow-green-900/10">
-            <img src="/public/housekey.png" alt="ogalandlord logo icon" className='w-6' />
-          </div>
-          <h1 className="text-2xl font-bold text-[#004d2c] tracking-tight">
-            OgaLandlord Admin Panel
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Sign in to access the admin panel
-          </p>
-        </div>
 
         {error && (
           <div id="login-error" className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-xs rounded-r-md">
@@ -132,7 +137,7 @@ export default function Login({ onLogin }: LoginProps) {
       </div>
 
       {/* Footer lock statement */}
-      <p className="text-[11px] text-slate-400 tracking-wide text-center uppercase py-4">
+      <p className="text-[9px] text-slate-400 tracking-wide text-center uppercase py-4">
         Internal use only. Authorized personnel only.
       </p>
     </div>

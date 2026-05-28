@@ -42,6 +42,7 @@ export default function ReportsView({
 }: ReportsViewProps) {
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
   const [severityFilter, setSeverityFilter] = useState('all');
   const [internalNote, setInternalNote] = useState('');
   const [notesList, setNotesList] = useState<Record<string, string[]>>({
@@ -53,10 +54,21 @@ export default function ReportsView({
 
   // Filter reports
   const filteredReports = reports.filter(r => {
+    // search parameters
+    const matchesSearch =
+      r.reporter?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.agentName.toLowerCase().includes(searchTerm.toLowerCase());
+
     const matchesStatus = statusFilter === 'all' || r.status === statusFilter;
+
     const matchesSeverity = severityFilter === 'all' || r.severity === severityFilter;
-    return matchesStatus && matchesSeverity;
+
+    return matchesSearch && matchesStatus && matchesSeverity;
   });
+  const resetFilters = () => {
+    setSearchTerm('');
+    setStatusFilter('all');
+  };
 
   // Save internal notes
   const handleSaveNote = (reportId: string) => {
@@ -356,11 +368,21 @@ export default function ReportsView({
 
   return (
     <div id="reports-view" className="space-y-6">
-
+      <div>
+        <h2 className="text-sm font-extrabold text-slate-800 tracking-wider uppercase">
+          Reports & Complaints
+        </h2>
+        <p className="text-[11px] text-slate-400 block mt-1 ">
+          Review and manage user reports against agent
+        </p>
+      </div>
       {/* Control panel & filter */}
       <ReportFilters
+        searchTerm={searchTerm}
+        onSearchTermChange={setSearchTerm}
         statusFilter={statusFilter}
         onStatusChange={setStatusFilter}
+        onReset={resetFilters}
       />
 
       {/* Reports Table Grid */}
@@ -393,7 +415,7 @@ export default function ReportsView({
                     </td>
 
                     <td className="py-3 px-5 text-slate-700 text-[10px]">
-                      <span className="font-bold hover:text-[#004d2c] cursor-pointer" onClick={() => setSelectedReportId(report.id)}>
+                      <span className="font-bold text-[10px] hover:text-[#004d2c] cursor-pointer" onClick={() => setSelectedReportId(report.id)}>
                         {report.agentName}
                       </span>
                       <span className="block text-[10px] text-slate-400 font-semibold">{report.agentId}</span>
@@ -408,18 +430,18 @@ export default function ReportsView({
                     </td>
 
                     <td className="py-3 px-5 text-center">
-                      <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase ${report.severity === 'High' ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-amber-50 text-amber-700'
+                      <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold  ${report.severity === 'High' ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-amber-50 text-amber-700'
                         }`}>
                         {report.severity}
                       </span>
                     </td>
 
                     <td className="py-3 px-5">
-                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wide border ${report.status === 'Resolved'
-                          ? 'bg-emerald-50 text-emerald-800 border-emerald-100'
-                          : report.status === 'Reviewed'
-                            ? 'bg-blue-50 text-blue-700 border-blue-100'
-                            : 'bg-red-50 text-red-600 border-red-100'
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold  tracking-wide border ${report.status === 'Resolved'
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-100'
+                        : report.status === 'Reviewed'
+                          ? 'bg-blue-50 text-blue-700 border-blue-100'
+                          : 'bg-red-50 text-red-600 border-red-100'
                         }`}>
                         {report.status}
                       </span>
@@ -428,7 +450,7 @@ export default function ReportsView({
                     <td className="py-3 px-5 text-right">
                       <button
                         onClick={() => setSelectedReportId(report.id)}
-                        className="px-3 py-1 bg-white hover:bg-[#004d2c] hover:text-white text-[#004d2c] font-bold border border-slate-200 hover:border-[#004d2c] rounded-lg transition-colors cursor-pointer"
+                        className="px-3 py-1 bg-white hover:bg-[#004d2c] hover:text-white text-[#004d2c] font-bold border border-slate-200 hover:border-[#004d2c] rounded-lg transition-colors cursor-pointer text-[10px]"
                       >
                         View
                       </button>
@@ -438,6 +460,16 @@ export default function ReportsView({
               )}
             </tbody>
           </table>
+        </div>
+
+        <div className="p-4 bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-t border-slate-100 flex items-center justify-between">
+          <span>Showing {filteredReports.length} of {reports.length} reports</span>
+          <div className="flex gap-1.5">
+            <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">Previous</button>
+            <button className="px-2.5 py-1 bg-[#004d2c] text-white rounded cursor-pointer">1</button>
+            <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">2</button>
+            <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">Next</button>
+          </div>
         </div>
       </div>
 

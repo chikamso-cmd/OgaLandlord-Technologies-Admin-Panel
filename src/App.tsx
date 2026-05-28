@@ -37,6 +37,7 @@ export default function App() {
     isMobileMenuOpen,
     setIsMobileMenuOpen,
     activeModal,
+    modalTargetAgentId,
     modalReasonInput,
     modalScoreReduction,
     modalExtendValue,
@@ -58,6 +59,10 @@ export default function App() {
 
   const navigate = useNavigate();
 
+  const modalTargetAgent = modalTargetAgentId
+    ? agents.find((agent) => agent.id === modalTargetAgentId) ?? null
+    : null;
+
   const handleViewAgentProfile = (agtId: string) => {
     setSelectedAgentId(agtId);
     setActiveTab('agents');
@@ -75,6 +80,7 @@ export default function App() {
 
   return (
     <Routes>
+      <Route path="login" element={<Login onLogin={handleLogin} />} />
       <Route
         path="/"
         element={
@@ -90,6 +96,7 @@ export default function App() {
             setIsMobileMenuOpen={setIsMobileMenuOpen}
             toastMessage={toastMessage}
             activeModal={activeModal}
+            modalTargetAgent={modalTargetAgent}
             modalReasonInput={modalReasonInput}
             modalScoreReduction={modalScoreReduction}
             modalExtendValue={modalExtendValue}

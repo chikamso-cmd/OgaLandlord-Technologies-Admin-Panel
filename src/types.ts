@@ -79,6 +79,8 @@ export interface OgaListing {
 export interface OgaReport {
   id: string;
   reporter: string;
+  title?: string;
+  area?: string;
   agentId: string;
   agentName: string;
   reason: string;
