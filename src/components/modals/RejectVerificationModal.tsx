@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react';
-import { X } from 'lucide-react';
+// import { X } from 'lucide-react';
 import type { OgaAgent } from '../../types';
 import ModalShell from './ModalShell';
 
