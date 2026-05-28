@@ -37,6 +37,7 @@ export default function App() {
     isMobileMenuOpen,
     setIsMobileMenuOpen,
     activeModal,
+    modalTargetAgentId,
     modalReasonInput,
     modalScoreReduction,
     modalExtendValue,
@@ -57,6 +58,10 @@ export default function App() {
   } = useAppState();
 
   const navigate = useNavigate();
+
+  const modalTargetAgent = modalTargetAgentId
+    ? agents.find((agent) => agent.id === modalTargetAgentId) ?? null
+    : null;
 
   const handleViewAgentProfile = (agtId: string) => {
     setSelectedAgentId(agtId);
@@ -91,6 +96,7 @@ export default function App() {
             setIsMobileMenuOpen={setIsMobileMenuOpen}
             toastMessage={toastMessage}
             activeModal={activeModal}
+            modalTargetAgent={modalTargetAgent}
             modalReasonInput={modalReasonInput}
             modalScoreReduction={modalScoreReduction}
             modalExtendValue={modalExtendValue}

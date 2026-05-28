@@ -192,6 +192,16 @@ export default function SubscriptionsView({
               )}
             </tbody>
           </table>
+
+          <div className="p-4 bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-t border-slate-100 flex items-center justify-between">
+            <span>Showing {filteredSubs.length} of {subscriptions.length} subscriptions</span>
+            <div className="flex gap-1.5">
+              <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">Previous</button>
+              <button className="px-2.5 py-1 bg-[#004d2c] text-white rounded cursor-pointer">1</button>
+              <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">2</button>
+              <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">Next</button>
+            </div>
+          </div>
         </div>
       </div>
 
