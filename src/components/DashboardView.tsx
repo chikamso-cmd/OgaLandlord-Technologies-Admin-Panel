@@ -8,7 +8,6 @@ import {
   UserCheck, 
   Clock, 
   HomeIcon, 
-  AlertTriangle, 
   DollarSign, 
   TrendingUp, 
   ArrowRight,
@@ -16,9 +15,12 @@ import {
   Info,
   CheckCircle2,
   FileCheck2,
-  AlertCircle
+  AlertCircle,
+  Flag,
+  Eye
 } from 'lucide-react';
 import { OgaStatCard, OgaAlert, OgaRecentActivity, DashboardTab } from '../types';
+import { Link } from 'react-router-dom';
 
 interface DashboardViewProps {
   statCards: OgaStatCard[];
@@ -38,19 +40,19 @@ export default function DashboardView({
   const renderIcon = (type: string) => {
     switch (type) {
       case 'agents':
-        return <Users size={18} className="text-[#004d2c]" />;
+        return <Users size={14} className="text-[#004d2c]" />;
       case 'verified':
-        return <UserCheck size={18} className="text-emerald-600" />;
+        return <UserCheck size={14} className="text-emerald-600" />;
       case 'pending':
-        return <Clock size={18} className="text-amber-500" />;
+        return <Clock size={14} className="text-amber-500" />;
       case 'listings':
-        return <HomeIcon size={18} className="text-blue-600" />;
+        return <HomeIcon size={14} className="text-blue-600" />;
       case 'reports':
-        return <AlertTriangle size={18} className="text-red-500" />;
+        return <Flag size={14} className="text-red-500" />;
       case 'revenue':
-        return <DollarSign size={18} className="text-emerald-700" />;
+        return <DollarSign size={14} className="text-emerald-700" />;
       default:
-        return <Users size={18} className="text-slate-600" />;
+        return <Users size={14} className="text-slate-600" />;
     }
   };
 
@@ -100,7 +102,7 @@ export default function DashboardView({
             </div>
             
             <div className="mt-3">
-              <span className="text-xl font-black text-slate-800 tracking-tight">
+              <span className="text-md font-black text-emerald-800 tracking-tight">
                 {card.value}
               </span>
               
@@ -116,7 +118,7 @@ export default function DashboardView({
                       {card.isPositive ? <TrendingUp size={10} /> : null}
                       {card.changeText.split(' ')[0]}
                     </span>
-                    <span className="text-slate-400">
+                    <span className="text-emerald-600">
                       {card.changeText.substring(card.changeText.indexOf(' '))}
                     </span>
                   </div>
@@ -147,11 +149,11 @@ export default function DashboardView({
               {alert.type === 'danger' && <ShieldAlert size={16} className="text-red-500 shrink-0" />}
               {alert.type === 'warning' && <AlertCircle size={16} className="text-amber-500 shrink-0" />}
               {alert.type === 'info' && <Info size={16} className="text-blue-500 shrink-0" />}
-              <span className="text-xs font-semibold leading-none">{alert.text}</span>
+              <span className="text-[10px] font-semibold leading-none">{alert.text}</span>
             </div>
             <button
               onClick={() => onTriggerTabChange(alert.targetTab, alert.filter)}
-              className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider hover:underline hover:opacity-85 cursor-pointer shrink-0"
+              className="flex items-center gap-1 text-[10px] font-bold tracking-wider hover:underline hover:opacity-85 cursor-pointer shrink-0"
             >
               <span>Review</span>
               <ArrowRight size={12} />
@@ -164,34 +166,37 @@ export default function DashboardView({
       <div className="grid grid-cols-1  gap-5">
         
         {/* Quick Actions Card */}
-        <div className="lg:col-span-5 bg-white p-5 rounded-xl border border-emerald-950/5 space-y-4">
+        <div className="lg:col-span-7 bg-white p-5 rounded-xl border border-emerald-950/5 space-y-4">
           <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
             Quick Actions
           </h3>
-          <div className="flex gap-2.5">
-            <button
-              onClick={() => onTriggerTabChange('agents', 'Pending')}
-              className="w-full flex items-center gap-3 px-4 py-2.5 bg-[#004d2c] hover:bg-[#00381e] text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer"
-            >
-              <CheckCircle2 size={15} />
-              <span>Verify Agents</span>
-            </button>
+          <div className="flex flex-col sm:flex-row gap-2.5">
+            <Link to="/agents">
+              <button
+                className="w-full max-w-75 flex items-center gap-3 px-4 py-2.5 bg-[#004d2c] hover:bg-[#00381e] text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer"
+              >
+                <CheckCircle2 size={15} />
+                <span>Verify Agents</span>
+              </button>
+            </Link>
 
-            <button
-              onClick={() => onTriggerTabChange('reports')}
-              className="w-full flex items-center gap-3 px-4 py-2.5 bg-white hover:bg-slate-50 text-[#004d2c] border border-slate-200 text-[10px] font-bold rounded-lg transition-colors cursor-pointer"
-            >
-              <AlertTriangle size={15} className="text-amber-500" />
-              <span>Review Reports</span>
-            </button>
+            <Link to="/reports">
+              <button
+                className="w-full max-w-75 flex items-center gap-3 px-4 py-2.5 bg-white hover:bg-slate-50 text-[#004d2c] border border-slate-200 text-[10px] font-bold rounded-lg transition-colors cursor-pointer"
+              >
+                <Eye size={15} className="text-amber-500" />
+                <span>Review Reports</span>
+              </button>
+            </Link>
 
-            <button
-              onClick={() => onTriggerTabChange('listings', 'Pending')}
-              className="w-full flex items-center gap-3 px-4 py-2.5 bg-white hover:bg-slate-50 text-[#004d2c] border border-slate-200 text-[10px] font-bold rounded-lg transition-colors cursor-pointer"
-            >
-              <FileCheck2 size={15} />
-              <span>Approve Listings</span>
-            </button>
+            <Link to="/listings">
+              <button
+                className="w-full max-w-75 flex items-center gap-3 px-4 py-2.5 bg-white hover:bg-slate-50 text-[#004d2c] border border-slate-200 text-[10px] font-bold rounded-lg transition-colors cursor-pointer"
+              >
+                <FileCheck2 size={15} />
+                <span>Approve Listings</span>
+              </button>
+            </Link>
           </div>
         </div>
 

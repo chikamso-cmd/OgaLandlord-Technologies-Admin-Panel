@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { AlertCircle, Calendar, DollarSign } from 'lucide-react';
 import {
   OgaStatCard,
   OgaAlert,
@@ -13,6 +14,7 @@ import {
   OgaSubscription,
   OgaAdminUser
 } from './types';
+import { ReactInstance, ReactNode } from 'react';
 
 export const initialStatCards: OgaStatCard[] = [
   {
@@ -502,3 +504,41 @@ export const initialAdminUsers: OgaAdminUser[] = [
     role: 'Admin'
   }
 ];
+type SubscriptionCard = {
+  id: number;
+  title: string;
+  count: string;
+  label: string;
+  iconType: 'agents' | 'verified' | 'pending' | 'listings';
+}
+export const subscriptionCard:SubscriptionCard[] = [
+  {
+    id: 1,
+    title: "Active Licences",
+    count: "1,847",
+    label: "Active subscriptions",
+    iconType: "agents",
+  },
+  {
+    id: 1,
+    title: "Expired Plans",
+    count: "141",
+    label: "Needs attention",
+    iconType: "verified",
+  },
+  {
+    id: 3,
+    title: "Expiring this week",
+    count: "47",
+    label: "Alert Sent",
+     iconType: "pending",
+  },
+  {
+    id: 4,
+    title: "Premium revenue",
+    count: "₦47.8M",
+    label: "Total YTD value",
+     iconType: "listings",
+  },
+
+]
