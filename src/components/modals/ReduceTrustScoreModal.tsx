@@ -61,7 +61,7 @@ export default function ReduceTrustScoreModal({
             description="Trust score reductions are permanent and affect the agent's visibility and ranking on the platform."
             onClose={onClose}
         >
-            <form onSubmit={onConfirm} className="space-y-6 max-h-[calc(100vh-22rem)] overflow-y-auto pr-1">
+            <form onSubmit={onConfirm} className="space-y-6 h-screen overflow-y-auto pr-1">
                 <div className="rounded-3xl border border-slate-200 bg-orange-50 p-4 sm:p-5">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
@@ -90,15 +90,15 @@ export default function ReduceTrustScoreModal({
 
                     <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
                         <p className="text-sm font-semibold text-slate-800">Select Infractions *</p>
-                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                        <div className="mt-4 grid gap-3 grid-cols-1 ">
                             {infractions.map((item) => (
                                 <button
                                     key={item.id}
                                     type="button"
                                     onClick={() => toggleInfraction(item.id)}
                                     className={`flex items-center justify-between gap-4 rounded-2xl border px-4 py-3 text-left text-sm font-medium transition ${selectedInfractions.includes(item.id)
-                                            ? 'border-[#004d2c] bg-emerald-50 text-slate-900 shadow-sm shadow-emerald-200/60'
-                                            : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                                        ? 'border-[#004d2c] bg-emerald-50 text-slate-900 shadow-sm shadow-emerald-200/60'
+                                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
                                         }`}
                                 >
                                     <span>{item.label}</span>

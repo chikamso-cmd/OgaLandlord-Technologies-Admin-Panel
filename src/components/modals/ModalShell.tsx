@@ -16,12 +16,12 @@ export default function ModalShell({
 }: ModalShellProps) {
     return (
         <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-[2px] flex items-center justify-center p-4 sm:p-6">
-            <div className="w-full max-w-lg sm:max-w-xl max-h-[calc(100vh-3rem)] overflow-hidden rounded-[28px] bg-white border border-slate-200 shadow-[0_28px_80px_rgba(15,23,42,0.16)]">
-                <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4 sm:px-6 sm:py-5">
+            <div className="w-full max-w-md sm:max-w-md h-screen overflow-hidden rounded-[28px] bg-white border border-slate-200 shadow-[0_28px_80px_rgba(15,23,42,0.16)]">
+                <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-2 sm:px-6 sm:py-2">
                     <div className="space-y-2">
-                        <h2 className="text-lg sm:text-xl font-semibold text-slate-900 tracking-tight">{title}</h2>
+                        <h2 className="text-sm sm:text-base font-semibold text-slate-900 tracking-tight">{title}</h2>
                         {description ? (
-                            <p className="text-sm leading-6 text-slate-600">{description}</p>
+                            <p className="text-xs leading-6 text-slate-600">{description}</p>
                         ) : null}
                     </div>
                     <button
@@ -32,7 +32,7 @@ export default function ModalShell({
                         <X size={18} />
                     </button>
                 </div>
-                <div className="px-5 pb-5 sm:px-6 sm:pb-6 overflow-y-auto max-h-[calc(100vh-16rem)]">{children}</div>
+                <div className="px-5 pb-5 sm:px-6 sm:pb-6 overflow-y-auto h-[350px]">{children}</div>
             </div>
         </div>
     );
