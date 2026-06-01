@@ -102,16 +102,21 @@ export default function ReportsView({
         <div className="bg-white p-5 rounded-xl border border-emerald-950/5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className={`px-2 py-0.5 text-[9px] font-extrabold rounded-md uppercase tracking-wide text-white ${selectedReport.severity === 'High' ? 'bg-red-600 shadow-sm shadow-red-500/15' : 'bg-amber-500'
+             
+              <h3 className="text-base font-medium text-slate-800 tracking-tight leading-none truncate">
+                {selectedReport.reason}
+              </h3>
+              <span className={`px-2 py-0.5 text-[9px] font-medium rounded-md tracking-wide ${selectedReport.severity === 'High' ? 'bg-red-100 text-red-500 shadow-sm shadow-red-500/15' : 'text-amber-500 bg-amber-100'
                 }`}>
                 {selectedReport.severity} Severity
               </span>
-              <h3 className="text-base font-extrabold text-slate-800 tracking-tight leading-none truncate">
-                {selectedReport.reason}
-              </h3>
+              <span className={`px-2 py-1  text-[10px] font-medium rounded-lg ${selectedReport.status === 'Resolved' ? 'bg-emerald-500 text-emerald-800 border border-emerald-100' : 'bg-red-100 text-red-500'
+                }`}>
+             {selectedReport.status}
+              </span>
             </div>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-              ID: {selectedReport.id} • Registered {selectedReport.date}
+            <p className="text-[10px] text-slate-400 font-bold  tracking-widest">
+              ReportID: {selectedReport.id}
             </p>
           </div>
 
@@ -125,10 +130,7 @@ export default function ReportsView({
                 <span>Mark as Reviewed</span>
               </button>
             )}
-            <span className={`px-3 py-1 bg-slate-100 text-slate-700 text-xs font-extrabold rounded-lg ${selectedReport.status === 'Resolved' ? 'bg-emerald-50 text-emerald-800 border border-emerald-100' : ''
-              }`}>
-              Status: {selectedReport.status}
-            </span>
+            
           </div>
         </div>
 

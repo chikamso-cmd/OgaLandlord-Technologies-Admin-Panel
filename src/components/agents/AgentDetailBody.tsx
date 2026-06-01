@@ -14,6 +14,26 @@ export default function AgentDetailBody({ agent, listings }: AgentDetailBodyProp
           <h4 className="text-xs font-extrabold text-slate-800 tracking-tight uppercase border-b border-slate-50 pb-2">
             Trust Score Breakdown
           </h4>
+          {/* trust score demographic */}
+          <div className="flex items-center gap-8 border-t md:border-t-0 pt-4 md:pt-0 border-slate-100">
+            <div className="text-center">
+              <div className="relative flex gap-3 items-center ">
+                <div className={`w-16 h-16 rounded-full flex flex-col items-center justify-center border-4 ${agent.trustScore >= 80
+                    ? 'border-emerald-800 bg-emerald-50/50 text-green-800'
+                    : agent.trustScore >= 50
+                      ? 'border-amber-500 bg-amber-50/50 text-amber-500'
+                      : 'border-red-500 bg-red-50/50 text-red-500'
+                  } `} style={{ border: `${agent.trustScore}%` }}>
+                  <p className="text-lg flex flex-col font-black  tracking-tighter leading-none">{agent.trustScore} <span className="text-[9px] pt-1">/100</span> </p>
+                </div>
+                <div>
+                  <h1 className="text-left font-medium text-green-800">Excellent </h1>
+                  <p className="text-left text-[9px] font-medium">Based on 3 factors</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-4">
             <ScoreRow label="Response Time" value={agent.responseTime} />
             <ScoreRow label="Transaction Success" value={agent.transactionSuccess} />
@@ -95,7 +115,7 @@ function ScoreRow({ label, value }: { label: string; value: number }) {
         <span>{value}/100</span>
       </div>
       <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-        <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${value}%` }} />
+        <div className="bg-emerald-800 h-full rounded-full" style={{ width: `${value}%` }} />
       </div>
     </div>
   );
