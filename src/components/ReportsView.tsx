@@ -6,17 +6,9 @@
 import { useState } from 'react';
 import {
   ArrowLeft,
-  AlertTriangle,
-  FileText,
   User,
   Clock,
-  ExternalLink,
-  ShieldAlert,
-  ChevronRight,
-  ShieldCheck,
   CheckCircle,
-  X,
-  FileCheck,
   CircleX,
   Ban,
   LineChart,
