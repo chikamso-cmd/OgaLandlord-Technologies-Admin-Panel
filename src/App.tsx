@@ -38,6 +38,7 @@ export default function App() {
     setIsMobileMenuOpen,
     activeModal,
     modalTargetAgentId,
+    modalTargetSubscriptionId,
     modalReasonInput,
     modalScoreReduction,
     modalExtendValue,
@@ -61,6 +62,10 @@ export default function App() {
 
   const modalTargetAgent = modalTargetAgentId
     ? agents.find((agent) => agent.id === modalTargetAgentId) ?? null
+    : null;
+
+  const modalTargetSubscription = modalTargetSubscriptionId
+    ? subscriptions.find((sub) => sub.id === modalTargetSubscriptionId) ?? null
     : null;
 
   const handleViewAgentProfile = (agtId: string) => {
@@ -97,6 +102,7 @@ export default function App() {
             toastMessage={toastMessage}
             activeModal={activeModal}
             modalTargetAgent={modalTargetAgent}
+            modalTargetSubscription={modalTargetSubscription}
             modalReasonInput={modalReasonInput}
             modalScoreReduction={modalScoreReduction}
             modalExtendValue={modalExtendValue}

@@ -29,34 +29,34 @@ export default function SubscriptionsView({
   });
 
   // Helper to map icons
-    const renderIcon = (type: string) => {
-      switch (type) {
-        case 'agents':
-          return <DollarSign size={14} className="text-[#004d2c]" />;
-        case 'verified':
-          return <AlertCircle size={14} className="text-red-600" />;
-        case 'pending':
-          return <Calendar size={14} className="text-amber-500" />;
-        case 'listings':
-          return <DollarSign size={14} className="text-blue-600" />;
-      }
-    };
-  
-    const getIconBackground = (type: string) => {
-      switch (type) {
-        case 'agents':
-          return 'bg-emerald-50 border border-emerald-100';
-        case 'verified':
-          return 'bg-red-50 border border-red-100';
-        case 'pending':
-          return 'bg-amber-50 border border-amber-100';
-        case 'listings':
-          return 'bg-blue-50 border border-blue-100';
-        default:
-          return 'bg-slate-50 border border-slate-100';
-      }
-    };
-  
+  const renderIcon = (type: string) => {
+    switch (type) {
+      case 'agents':
+        return <DollarSign size={14} className="text-[#004d2c]" />;
+      case 'verified':
+        return <AlertCircle size={14} className="text-red-600" />;
+      case 'pending':
+        return <Calendar size={14} className="text-amber-500" />;
+      case 'listings':
+        return <DollarSign size={14} className="text-blue-600" />;
+    }
+  };
+
+  const getIconBackground = (type: string) => {
+    switch (type) {
+      case 'agents':
+        return 'bg-emerald-50 border border-emerald-100';
+      case 'verified':
+        return 'bg-red-50 border border-red-100';
+      case 'pending':
+        return 'bg-amber-50 border border-amber-100';
+      case 'listings':
+        return 'bg-blue-50 border border-blue-100';
+      default:
+        return 'bg-slate-50 border border-slate-100';
+    }
+  };
+
 
   return (
     <div id="subscriptions-view" className="space-y-6">
@@ -169,10 +169,10 @@ export default function SubscriptionsView({
 
                     <td className="py-3 px-5">
                       <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-normal  tracking-wide border ${sub.status === 'Active'
-                          ? 'bg-emerald-50 text-emerald-800 border-emerald-100'
-                          : sub.status === 'Expiring soon'
-                            ? 'bg-amber-50 text-amber-700 border-amber-100'
-                            : 'bg-red-50 text-red-600 border-red-100'
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-100'
+                        : sub.status === 'Expiring soon'
+                          ? 'bg-amber-50 text-amber-700 border-amber-100'
+                          : 'bg-red-50 text-red-600 border-red-100'
                         }`}>
                         {sub.status === 'Active' ? 'Active' : sub.status === 'Expiring soon' ? 'Expiring soon' : 'Expired'}
                       </span>
@@ -183,7 +183,7 @@ export default function SubscriptionsView({
                         onClick={() => onTriggerExtendModal(sub)}
                         className="px-3 py-1 bg-white hover:bg-[#004d2c] hover:text-white text-[#004d2c] font-semibold border border-slate-200 hover:border-[#004d2c] rounded-lg transition-colors cursor-pointer text-[10px]"
                       >
-                        view
+                        Manage
                       </button>
                     </td>
 

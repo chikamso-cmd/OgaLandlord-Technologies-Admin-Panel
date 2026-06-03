@@ -1,14 +1,16 @@
 import type { FormEvent } from 'react';
-import type { OgaAgent } from '../types';
+import type { OgaAgent, OgaSubscription } from '../types';
 import type { ModalActionType } from '../types';
 import BanAgentModal from './modals/BanAgentModal';
 import RejectVerificationModal from './modals/RejectVerificationModal';
 import SuspendAgentModal from './modals/SuspendAgentModal';
 import ReduceTrustScoreModal from './modals/ReduceTrustScoreModal';
+import SubscriptionModal from './modals/SubscriptionModal';
 
 interface ActionModalProps {
     activeModal: ModalActionType | null;
     modalTargetAgent: OgaAgent | null;
+    modalTargetSubscription: OgaSubscription | null;
     modalReasonInput: string;
     modalScoreReduction: number;
     modalExtendValue: '1' | '3' | '6' | '12';
@@ -22,6 +24,7 @@ interface ActionModalProps {
 export default function ActionModal({
     activeModal,
     modalTargetAgent,
+    modalTargetSubscription,
     modalReasonInput,
     modalScoreReduction,
     modalExtendValue,
@@ -83,12 +86,24 @@ export default function ActionModal({
         );
     }
 
+    if (activeModal === 'extendSub') {
+        return (
+            <SubscriptionModal
+                subscription={modalTargetSubscription}
+                modalExtendValue={modalExtendValue}
+                onExtendValueChange={onExtendValueChange}
+                onClose={onClose}
+                onConfirm={onConfirm}
+            />
+        );
+    }
+
     return (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
             <div className="bg-white rounded-xl shadow-2xl border border-slate-100 max-w-sm w-full p-6 space-y-4 animate-scale-up font-sans selection:bg-emerald-50 text-xs">
                 <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
                     <h3 className="text-sm font-extrabold text-slate-800 uppercase tracking-wide">
-                        {activeModal === 'remove' ? 'Remove Property Listing' : 'Renew Agent License'}
+                        Remove Property Listing
                     </h3>
                     <button
                         onClick={onClose}
@@ -99,21 +114,6 @@ export default function ActionModal({
                     </button>
                 </div>
                 <form onSubmit={onConfirm} className="space-y-4 font-semibold">
-                    {activeModal === 'extendSub' && (
-                        <div>
-                            <label className="block text-slate-500 mb-1.5 font-bold">Extension Duration period:</label>
-                            <select
-                                value={modalExtendValue}
-                                onChange={(e) => onExtendValueChange(e.target.value as '1' | '3' | '6' | '12')}
-                                className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none font-bold text-slate-800 cursor-pointer"
-                            >
-                                <option value="1">Extend by 1 Month (₦ 5,000)</option>
-                                <option value="3">Extend by 3 Months (₦ 12,500)</option>
-                                <option value="6">Extend by 6 Months (₦ 25,000)</option>
-                                <option value="12">Extend by 12 Months (₦ 50,000)</option>
-                            </select>
-                        </div>
-                    )}
                     <div>
                         <label className="block text-slate-500 mb-1.5 font-bold">
                             Reason justification <span className="text-red-500">*</span>
