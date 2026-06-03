@@ -12,7 +12,8 @@ import {
   OgaListing,
   OgaReport,
   OgaSubscription,
-  OgaAdminUser
+  OgaAdminUser,
+  ActionHistory
 } from './types';
 import { ReactInstance, ReactNode } from 'react';
 
@@ -349,6 +350,8 @@ export const initialListings: OgaListing[] = [
 export const initialReports: OgaReport[] = [
   {
     id: 'RPT001',
+    category: 'Frudulent Listing',
+    email: 'tenant456@mail.com',
     reporter: 'Tenant_User456',
     agentId: 'AGT004',
     agentName: 'Ibrahim Musa',
@@ -368,13 +371,15 @@ export const initialReports: OgaReport[] = [
     previousOffenses: [
       {
         id: 'PREV-1',
+        reportedby: 'Tenant_user123',
         reason: 'Listing mismatch',
         date: 'Nov 12, 2024',
-        status: 'Resolved',
+        status: 'Reviewed',
         actionTaken: 'Warning issued to agent'
       },
       {
         id: 'PREV-2',
+        reportedby: 'Tenant_user789',
         reason: 'Property unavailable',
         date: 'Dec 15, 2024',
         status: 'Resolved',
@@ -382,13 +387,15 @@ export const initialReports: OgaReport[] = [
       },
       {
         id: 'PREV-3',
+        reportedby: 'Tenant_user456',
         reason: 'Unprofessional behavior',
         date: 'Nov 8, 2024',
-        status: 'Resolved',
+        status: 'Open',
         actionTaken: 'Agent warned and coached'
       },
       {
         id: 'PREV-4',
+        reportedby: 'Tenant_user234',
         reason: 'Late response',
         date: 'Oct 22, 2024',
         status: 'Resolved',
@@ -396,6 +403,7 @@ export const initialReports: OgaReport[] = [
       },
       {
         id: 'PREV-5',
+        reportedby: 'Tenant_user678',
         reason: 'Misleading information',
         date: 'Sep 5, 2024',
         status: 'Resolved',
@@ -405,6 +413,8 @@ export const initialReports: OgaReport[] = [
   },
   {
     id: 'RPT002',
+    category: 'Frudulent Listing',
+    email: 'tenant123@mail.com',
     reporter: 'Tenant_User123',
     agentId: 'AGT002',
     agentName: 'Chukwudi Okonkwo',
@@ -418,6 +428,7 @@ export const initialReports: OgaReport[] = [
     previousOffenses: [
       {
         id: 'PRE-C-1',
+        reportedby: 'Tenant_user133',
         reason: 'Late response to inquiries',
         date: 'Jan 10, 2025',
         status: 'Resolved',
@@ -427,6 +438,8 @@ export const initialReports: OgaReport[] = [
   },
   {
     id: 'RPT003',
+    category: 'Frudulent Listing',
+    email: 'tenant789@mail.com',
     reporter: 'Tenant_User789',
     agentId: 'AGT002',
     agentName: 'Chukwudi Okonkwo',
@@ -511,7 +524,7 @@ type SubscriptionCard = {
   label: string;
   iconType: 'agents' | 'verified' | 'pending' | 'listings';
 }
-export const subscriptionCard:SubscriptionCard[] = [
+export const subscriptionCard: SubscriptionCard[] = [
   {
     id: 1,
     title: "Active Licences",
@@ -531,14 +544,37 @@ export const subscriptionCard:SubscriptionCard[] = [
     title: "Expiring this week",
     count: "47",
     label: "Alert Sent",
-     iconType: "pending",
+    iconType: "pending",
   },
   {
     id: 4,
     title: "Premium revenue",
     count: "₦47.8M",
     label: "Total YTD value",
-     iconType: "listings",
+    iconType: "listings",
   },
 
+]
+export const actionHistory: ActionHistory[] = [
+  {
+    id: "1",
+    title: 'Report Submitted',
+    reporter: 'by Tenant_User456',
+    date: 'Jan 15 2025',
+    time: '2:34 PM'
+  },
+  {
+    id: "2",
+    title: 'Report Viewed',
+    reporter: 'by Tenant',
+    date: 'Mar 30 2025',
+    time: '2:34 PM'
+  },
+  {
+    id: "3",
+    title: 'Report Flagged as High Priority',
+    reporter: 'by User123',
+    date: 'May 15 2025',
+    time: '3:56 PM'
+  },
 ]

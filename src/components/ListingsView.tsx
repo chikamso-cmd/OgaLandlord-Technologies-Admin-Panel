@@ -6,13 +6,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
-  MapPin,
-  User,
-  Trash2,
-  CheckCheck,
-  Eye,
   ArrowLeft,
-  Building,
   Image as ImageIcon,
   Copy
 } from 'lucide-react';
@@ -109,18 +103,18 @@ export default function ListingsView({
             {selectedListing.status !== 'Verified' && (
               <button
                 onClick={() => onApproveListing(selectedListing.id)}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 cursor-pointer shadow-sm shadow-emerald-700/15"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-lg flex items-center gap-1.5 cursor-pointer shadow-sm shadow-emerald-700/15"
               >
-                <CheckCheck size={14} />
+                {/* <CheckCheck size={14} /> */}
                 <span>Approve Listing</span>
               </button>
             )}
 
             <button
               onClick={() => onTriggerRemoveListingModal(selectedListing.id)}
-              className="px-4 py-2 bg-white hover:bg-red-50 text-red-600 border border-slate-200 hover:border-red-200 text-xs font-bold rounded-lg flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 bg-red-50  text-red-600 border border-red-200 text-xs font-medium rounded-lg flex items-center gap-1.5 cursor-pointer"
             >
-              <Trash2 size={14} />
+              {/* <Trash2 size={14} /> */}
               <span>Remove Listing</span>
             </button>
           </div>
@@ -132,8 +126,41 @@ export default function ListingsView({
           {/* Left panel interior showcase & general parameters */}
           <div className="lg:col-span-8 space-y-6">
 
+            {/* details overlay */}
+
             {/* Hero Property Frame */}
             <div className="relative aspect-video rounded-xl bg-slate-100 overflow-hidden border border-emerald-950/5 shadow-xs">
+              <div className="bg-white p-3 w-40 rounded-lg absolute z-50 top-12 left-6 shadow-xs ">
+                <span className={`px-2.5 py-1  text-[10px] font-medium rounded-md shadow-md tracking-wider leading-none ${selectedListing.status === 'Verified'
+                  ? 'bg-emerald-500 text-white'
+                  : selectedListing.status === 'Pending'
+                    ? 'bg-amber-500 text-white'
+                    : 'bg-red-500 text-white'
+                  }`}>
+                  {selectedListing.status}
+                </span>
+                <div className="flex gap-3 flex-col mt-2 mb-4 ">
+                  <div className="text-[10px] ">
+                    <h2 className="font-bold ">{selectedListing.price}</h2>
+                    <p className="text-slate-400 ">Price</p>
+                  </div>
+                  <div className="text-[10px] border-t border-slate-200 pt-2 ">
+                    <h2 className="font-bold ">{selectedListing.agentName}</h2>
+                    <p className="text-slate-400 ">Agent</p>
+                  </div>
+                  <div className="text-[10px] border-t border-slate-200 pt-2">
+                    <h2 className="font-bold ">{selectedListing.timeAgo}</h2>
+                    <p className="text-slate-400 ">Date Posted</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => onViewAgentProfile(selectedListing.agentId)}
+                  className="w-full py-2 bg-[#004d2c] hover:bg-[#00381e] text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer text-center block shadow-xs"
+                >
+                  View Agent Profile
+                </button>
+              </div>
               <img
                 src={selectedListing.image}
                 alt="Property main view"
@@ -157,49 +184,44 @@ export default function ListingsView({
 
             {/* General Property Text Description Card */}
             <div className="bg-white p-6 rounded-xl border border-emerald-950/5 space-y-4">
-              <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-widest border-b border-slate-50 pb-2">
+              <h4 className="text-[10px] font-extrabold text-slate-800 uppercase tracking-widest border-b border-slate-50 pb-2">
                 Property Description
               </h4>
-              <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line font-medium">
+              <p className="text-[10px] text-slate-600 leading-relaxed whitespace-pre-line font-medium">
                 {selectedListing.description}
               </p>
-            </div>
 
-            {/* Extra requirements & Tenant qualifications criteria */}
-            <div className="bg-white p-6 rounded-xl border border-emerald-950/5 space-y-4">
-              <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-widest">
-                Tenant Eligibility specifications
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-3.5 bg-slate-50/50 rounded-lg border border-slate-100 flex items-start gap-3">
-                  <div className="p-2 bg-emerald-50 text-[#004d2c] rounded-md"><Building size={14} /></div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-bold block mb-1 uppercase">Religion Constraint</span>
-                    <p className="text-xs font-bold text-slate-700 leading-tight">
-                      {selectedListing.specialRequirements.religion}
-                    </p>
-                    <span className="text-[9px] text-[#004d2c] font-semibold block mt-1 leading-tight">Verified requirement</span>
+              <div className="mt-3">
+                <h4 className="text-[10px] font-medium text-slate-800  tracking-widest">
+                  Special Requirement
+                </h4>
+                <div className="flex flex-col gap-2 ">
+                  <div className="pt-3 flex items-start gap-3">
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-medium block mb-1 ">Religion </span>
+                      <p className="text-xs font-medium text-slate-700 leading-tight">
+                        {selectedListing.specialRequirements.religion}
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="p-1.5 px-3 bg-slate-50/50 rounded-lg border border-slate-100 flex items-start gap-3">
-                  <div className="p-2 bg-emerald-50 text-[#004d2c] rounded-md"><User size={14} /></div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 font-bold block mb-1 uppercase">Marital Status preferential</span>
-                    <p className="text-xs font-bold text-slate-700 leading-tight">
-                      {selectedListing.specialRequirements.maritalStatus}
-                    </p>
-                    <span className="text-[9px] text-slate-400 block mt-1 leading-tight">Admin compliance approved</span>
+                  <div className="  gap-3">
+
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-medium block mb-1 ">Marital Status</span>
+                      <p className="text-[10px] font-medium text-slate-700 leading-tight">
+                        {selectedListing.specialRequirements.maritalStatus}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Image gallery placeholders */}
-            <div className="bg-white p-6 rounded-xl border border-emerald-950/5 space-y-4">
-              <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-widest flex items-center gap-2">
-                <ImageIcon size={14} className="text-slate-400" />
-                <span>Media gallery uploads</span>
+            <div className=" p-6 rounded-xl space-y-4">
+              <h4 className="text-[10px] font-bold text-green-800  tracking-widest">
+                <span> Gallery </span>
               </h4>
 
               <div className="grid grid-cols-3 gap-3">
@@ -227,85 +249,62 @@ export default function ListingsView({
 
             {/* Rental Fee Breakdown Column */}
             <div className="bg-white p-5 rounded-xl border border-emerald-950/5 space-y-5">
-              <div>
-                <span className="text-[10px] text-slate-400 font-extrabold block mb-1 uppercase tracking-wider">Lekki Rent Valuation</span>
-                <span className="text-xl font-black text-[#004d2c] tracking-tight block">
-                  {selectedListing.price}
-                </span>
-                <span className="text-[10px] text-[#00a86b] font-semibold mt-1 block">Inspect fee: {selectedListing.breakdown.inspectionFee}</span>
-              </div>
-
-              <div className="border-t border-slate-100 pt-4 space-y-2.5">
-                <div className="flex justify-between items-center text-xs">
+              <div className=" space-y-3">
+                <div className="flex flex-col text-[10px]">
                   <span className="text-slate-400 font-medium">Rent Amount</span>
                   <span className="font-bold text-slate-700">{selectedListing.breakdown.rent}</span>
                 </div>
 
-                <div className="flex justify-between items-center text-xs">
+                <div className="flex flex-col text-xs">
                   <span className="text-slate-400 font-medium">Service Charge</span>
                   <span className="font-bold text-slate-700">{selectedListing.breakdown.serviceCharge}</span>
                 </div>
 
-                <div className="flex justify-between items-center text-xs">
-                  <span className="font-semibold text-orange-600">Caution / Damage fee</span>
+                <div className="flex flex-col text-[10px]">
+                  <span className="font-semibold text-slate-400">Damage Charge</span>
                   <span className="font-bold text-slate-700">{selectedListing.breakdown.damageCharge}</span>
                 </div>
 
-                <div className="flex justify-between items-center text-xs">
+                <div className="flex flex-col text-[10px]">
                   <span className="text-slate-400 font-medium">Agency / Agreement fee</span>
                   <span className="font-bold text-slate-700">{selectedListing.breakdown.agentFee}</span>
                 </div>
 
-                <div className="flex justify-between items-center border-t border-dashed border-slate-200 pt-3 text-xs">
-                  <span className="font-extrabold text-[#004d2c] uppercase">Total Package</span>
-                  <span className="font-black text-slate-800 text-sm leading-none">{selectedListing.breakdown.total}</span>
+                <div className="flex flex-col border-t  border-slate-200 pt-3 text-[10px]">
+                  <span className="font-extrabold text-[#004d2c] ">Total Package</span>
+                  <span className="font-black text-slate-800 text-[10px] leading-none pt-1">{selectedListing.breakdown.total}</span>
                 </div>
               </div>
             </div>
 
-            {/* Direct Agent assignment detail profile card */}
-            <div className="p-5 rounded-xl border border-[#e8f7f0] bg-[#f4fbf7]/40 space-y-4">
-              <h4 className="text-xs font-extrabold text-slate-800 tracking-wider uppercase">
-                Listed Agent profile
-              </h4>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 min-w-10 bg-slate-200 rounded-full overflow-hidden border border-[#00bf71]/30">
-                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt={selectedListing.agentName} className="w-full h-full object-cover" />
-                </div>
-                <div className="overflow-hidden">
-                  <h5 className="text-xs font-bold text-slate-800 leading-tight truncate">
-                    {selectedListing.agentName}
-                  </h5>
-                  <span className="text-[10px] text-[#004d2c] font-semibold block mt-0.5">Trust Score: 95/100</span>
-                </div>
+            <div className="p-3 bg-white rounded-lg">
+              <div>
+                <span className="text-[10px] font-medium tracking-tight block">
+                  Inspection Fee
+                </span>
+                <span className="text-[10px] font-bold mt-1 block">{selectedListing.breakdown.inspectionFee}</span>
+
+                <p className="pt-3 text-[10px] text-slate-500">
+                  A one time fee required to inspect the property, this fee is non-refundable and does count towards rent or other charges
+                </p>
               </div>
-
-              <button
-                onClick={() => onViewAgentProfile(selectedListing.agentId)}
-                className="w-full py-2 bg-[#004d2c] hover:bg-[#00381e] text-white text-xs font-bold rounded-lg transition-colors cursor-pointer text-center block shadow-xs"
-              >
-                View Agent Profile
-              </button>
             </div>
-
           </div>
-
         </div>
-
       </div>
     );
   }
 
   return (
     <div id="listings-view" className="space-y-6">
-    <div>
-      <h1 className="text-lg font-extrabold text-slate-800 tracking-tight leading-none">
-         Listings Management
-      </h1>
-      <span className="text-[10px] text-slate-400 font-normal tracking-wider block mt-1">
-        Review and moderate property listings 
-      </span>
-    </div>
+      <div>
+        <h1 className="text-lg font-extrabold text-slate-800 tracking-tight leading-none">
+          Listings Management
+        </h1>
+        <span className="text-[10px] text-slate-400 font-normal tracking-wider block mt-1">
+          Review and moderate property listings
+        </span>
+      </div>
 
       <ListingFilters
         searchTerm={searchTerm}
@@ -356,33 +355,33 @@ export default function ListingsView({
                     <td className="py-4 px-5 text-slate-700 text-[10px]">{listing.agentName}</td>
                     <td className="py-4 px-5">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold  tracking-wide ${listing.status === 'Verified'
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-                          : listing.status === 'Pending'
-                            ? 'bg-amber-50 text-amber-700 border border-amber-100'
-                            : 'bg-red-50 text-red-700 border border-red-100'
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                        : listing.status === 'Pending'
+                          ? 'bg-amber-50 text-amber-700 border border-amber-100'
+                          : 'bg-red-50 text-red-700 border border-red-100'
                         }`}>
                         {listing.status}
                       </span>
                     </td>
                     <td className="py-4 px-5 text-right">
-                     <div className=" flex gap-1">
-                      <button
-                        type="button"
-                        onClick={() => handleSelectListing(listing.id)}
+                      <div className=" flex gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleSelectListing(listing.id)}
                           className="inline-flex items-center gap-2 rounded-lg  px-3 py-1 text-[10px] font-bold text-red-400 transition-colors   cursor-pointer"
-                      >
-                        <Copy size={12} />
-                        
-                      </button>
-                       <button
-                        type="button"
-                        onClick={() => handleSelectListing(listing.id)}
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1 text-[10px] font-bold text-[#004d2c] transition-colors hover:bg-[#004d2c] hover:text-white cursor-pointer"
-                      >
+                        >
+                          <Copy size={12} />
+
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSelectListing(listing.id)}
+                          className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1 text-[10px] font-bold text-[#004d2c] transition-colors hover:bg-[#004d2c] hover:text-white cursor-pointer"
+                        >
                           {/* <Eye size={12} /> */}
                           View
-                      </button>
-                     </div>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

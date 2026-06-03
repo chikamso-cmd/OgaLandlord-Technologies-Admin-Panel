@@ -79,7 +79,9 @@ export interface OgaListing {
 export interface OgaReport {
   id: string;
   reporter: string;
+  category: string;
   title?: string;
+  email: string;
   area?: string;
   agentId: string;
   agentName: string;
@@ -96,6 +98,7 @@ export interface OgaReport {
   previousOffenses: Array<{
     id: string;
     reason: string;
+    reportedby: string;
     date: string;
     status: 'Resolved' | 'Reviewed' | 'Open';
     actionTaken: string;
@@ -118,4 +121,11 @@ export interface OgaAdminUser {
   name: string;
   email: string;
   role: 'Super Admin' | 'Moderator' | 'Admin';
+}
+export interface ActionHistory {
+  id: string;
+  title: string;
+  reporter: string;
+  date: string;
+  time: string;
 }
