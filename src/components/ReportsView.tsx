@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { OgaReport, OgaAgent, OgaListing } from '../types';
 import ReportFilters from './reports/ReportFilters';
+import { actionHistory } from '../data';
 
 interface ReportsViewProps {
   reports: OgaReport[];
@@ -354,17 +355,21 @@ export default function ReportsView({
                     <h2 className="text-xs font-bold ">Quick Acions</h2>
 
                   <div className=" flex flex-col gap-2">
-                    
-
-                    <button
-                      onClick={() => onTriggerModal('ban', relatedAgent.id)}
-                      className="w-full flex items-center gap-2 justify-left px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-all cursor-pointer text-center shadow-xs"
-                    >
-                      <CircleX size={14} /> Ban Agent permanently
-                    </button>
 
 
                     <div className="flex flex-col gap-2">
+                    <div className="flex  items-center gap-2 select-none">
+                      {selectedReport.status !== 'Resolved' && (
+                        <button
+                          onClick={() => onMarkReviewed(selectedReport.id)}
+                          className="px-4 py-2 bg-emerald-600 w-full hover:bg-emerald-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <CheckCircle size={14} />
+                          <span>Mark as Reviewed</span>
+                        </button>
+                      )}
+
+                    </div>
                       <button
                         onClick={() => onTriggerModal('suspend', relatedAgent.id)}
                         className="flex-1 px-4 flex items-center gap-2 justify-left py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[10px] font-bold rounded-lg cursor-pointer"
@@ -378,26 +383,37 @@ export default function ReportsView({
                         <LineChart size={14} /> Reduce Trust Score
                       </button>
                     </div>
-                    <div className="flex  items-center gap-2 select-none">
-                      {selectedReport.status !== 'Resolved' && (
-                        <button
-                          onClick={() => onMarkReviewed(selectedReport.id)}
-                          className="px-4 py-2 bg-emerald-600 w-full hover:bg-emerald-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <CheckCircle size={14} />
-                          <span>Mark as Reviewed</span>
-                        </button>
-                      )}
-
-                    </div>
+                    <button
+                      onClick={() => onTriggerModal('ban', relatedAgent.id)}
+                      className="w-full flex items-center gap-2 justify-left px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-all cursor-pointer text-center shadow-xs"
+                    >
+                      <CircleX size={14} /> Ban Agent permanently
+                    </button>
                   </div>
                 </div>
               )}
             </div>
+            {/* ACTION HISTRORY */}
+            <div className="bg-white mt-4 rounded-lg shadow p-5">
+              <h1 className="text-xs font-bold ">Action History</h1>
+              {actionHistory.map((history) => (
+                <div key={history.id} className-flex flex-col gap-2>
+                  <div className="mt-2 flex  gap-3">
+                    <span className="bg-green-800 rounded-full w-1.5 h-1.5 mt-2"></span>
+                    <div className="s">
+                      <h1 className=" text-xs font-bold ">{history.title}</h1>
+                      <p className=" text-[10px] text-slate-400 pt-0.5">{history.reporter}</p>
+                      <p className=" text-[10px] text-slate-400 pt-0.5">{history.date} at {history.time}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+            </div>
 
             {/* Internal Admin Note board */}
             <div className="bg-white p-5 rounded-xl border border-emerald-950/5 space-y-4">
-              <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">
+              <h4 className="text-xs font-extrabold text-slate-800  tracking-wider">
                 Internal Memo Notes ({reportNotes.length})
               </h4>
 
@@ -406,11 +422,11 @@ export default function ReportsView({
                   <p className="text-[11px] text-slate-400 p-2 text-center">No internal notes logged. Write below.</p>
                 ) : (
                   reportNotes.map((note, i) => (
-                    <div key={i} className="bg-slate-50 p-2 py-2.5 border border-slate-100 rounded-lg text-[11px] text-slate-600 leading-relaxed font-semibold">
+                    <div key={i} className="bg-slate-50 p-2 py-2.5 border border-slate-100 rounded-lg text-[11px] text-slate-600 leading-relaxed font-semibold  overflow-hidden">
                       <span className="text-[#004d2c] font-black block text-[10px] uppercase">
                         {note.split(': ')[0]}
                       </span>
-                      <span className="mt-0.5 block font-medium">
+                      <span className="mt-0.5  block font-medium  text-wrap wrap-break-word">
                         {note.split(': ')[1]}
                       </span>
                     </div>

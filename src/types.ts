@@ -122,3 +122,10 @@ export interface OgaAdminUser {
   email: string;
   role: 'Super Admin' | 'Moderator' | 'Admin';
 }
+export interface ActionHistory {
+  id: string;
+  title: string;
+  reporter: string;
+  date: string;
+  time: string;
+}

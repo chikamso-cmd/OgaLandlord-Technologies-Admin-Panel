@@ -12,7 +12,8 @@ import {
   OgaListing,
   OgaReport,
   OgaSubscription,
-  OgaAdminUser
+  OgaAdminUser,
+  ActionHistory
 } from './types';
 import { ReactInstance, ReactNode } from 'react';
 
@@ -523,7 +524,7 @@ type SubscriptionCard = {
   label: string;
   iconType: 'agents' | 'verified' | 'pending' | 'listings';
 }
-export const subscriptionCard:SubscriptionCard[] = [
+export const subscriptionCard: SubscriptionCard[] = [
   {
     id: 1,
     title: "Active Licences",
@@ -543,14 +544,37 @@ export const subscriptionCard:SubscriptionCard[] = [
     title: "Expiring this week",
     count: "47",
     label: "Alert Sent",
-     iconType: "pending",
+    iconType: "pending",
   },
   {
     id: 4,
     title: "Premium revenue",
     count: "₦47.8M",
     label: "Total YTD value",
-     iconType: "listings",
+    iconType: "listings",
   },
 
+]
+export const actionHistory: ActionHistory[] = [
+  {
+    id: "1",
+    title: 'Report Submitted',
+    reporter: 'by Tenant_User456',
+    date: 'Jan 15 2025',
+    time: '2:34 PM'
+  },
+  {
+    id: "2",
+    title: 'Report Viewed',
+    reporter: 'by Tenant',
+    date: 'Mar 30 2025',
+    time: '2:34 PM'
+  },
+  {
+    id: "3",
+    title: 'Report Flagged as High Priority',
+    reporter: 'by User123',
+    date: 'May 15 2025',
+    time: '3:56 PM'
+  },
 ]
