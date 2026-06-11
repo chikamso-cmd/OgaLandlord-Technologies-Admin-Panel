@@ -2,7 +2,6 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import useAppState from './hooks/useAppState';
 import Login from './components/Login';
