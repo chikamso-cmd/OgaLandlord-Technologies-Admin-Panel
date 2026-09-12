@@ -3,31 +3,27 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { ShieldCheck, Settings, Lock, Users } from 'lucide-react';
-import { OgaAdminUser } from '../types';
-import InviteAdminForm from './settings/InviteAdminForm';
-import NotificationPreferenceToggle from './settings/NotificationPreferenceToggle';
+import React, { useState } from "react";
+import { ShieldCheck, Settings, Lock, Users } from "lucide-react";
+import { OgaAdminUser } from "../types";
+import { initialAdminUsers } from "../data";
+import InviteAdminForm from "./settings/InviteAdminForm";
+import NotificationPreferenceToggle from "./settings/NotificationPreferenceToggle";
 
-interface SettingsViewProps {
-  adminUsers: OgaAdminUser[];
-  onInviteAdmin: (email: string, role: 'Super Admin' | 'Moderator' | 'Admin') => void;
-  onShowToast: (message: string) => void;
-}
-
-export default function SettingsView({
-  adminUsers,
-  onInviteAdmin,
-  onShowToast
-}: SettingsViewProps) {
+export default function SettingsView() {
+  const [adminUsers, setAdminUsers] =
+    useState<OgaAdminUser[]>(initialAdminUsers);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   // Passwords state
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   // Invite state
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'Super Admin' | 'Moderator' | 'Admin'>('Admin');
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<
+    "Super Admin" | "Moderator" | "Admin"
+  >("Admin");
 
   // Preferences checkbox preferences
   const [preferences, setPreferences] = useState({
@@ -35,53 +31,69 @@ export default function SettingsView({
     newReports: true,
     subExpirations: true,
     suspiciousActivity: true,
-    listingApprovals: false
+    listingApprovals: false,
   });
+
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    window.setTimeout(() => setToastMessage(null), 4000);
+  };
 
   const handleUpdatePassword = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentPassword || !newPassword || !confirmPassword) {
-      alert('Please fill out all fields to perform password updates.');
+      alert("Please fill out all fields to perform password updates.");
       return;
     }
     if (newPassword !== confirmPassword) {
-      alert('Confirmation passwords do not match. Review values.');
+      alert("Confirmation passwords do not match. Review values.");
       return;
     }
-    onShowToast('Secure Administrator password updated successfully.');
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
+    showToast("Secure Administrator password updated successfully.");
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
   };
 
   const handleInviteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inviteEmail.trim()) return;
-    onInviteAdmin(inviteEmail, inviteRole);
-    onShowToast(`Administrative invitation dispatched to: ${inviteEmail}`);
-    setInviteEmail('');
+    setAdminUsers((current) => [
+      ...current,
+      {
+        id: `ADM00${current.length + 1}`,
+        name: inviteEmail.split("@")[0].replace(".", " "),
+        email: inviteEmail,
+        role: inviteRole,
+      },
+    ]);
+    showToast(`Administrative invitation dispatched to: ${inviteEmail}`);
+    setInviteEmail("");
   };
 
   const handleTogglePref = (key: keyof typeof preferences) => {
     setPreferences({
       ...preferences,
-      [key]: !preferences[key]
+      [key]: !preferences[key],
     });
   };
 
   const handleSavePreferences = () => {
-    onShowToast('Notification system guidelines stored successfully.');
+    showToast("Notification system guidelines stored successfully.");
   };
 
   return (
     <div id="settings-view" className="space-y-6">
+      {toastMessage && (
+        <div className="fixed bottom-5 right-5 z-50 bg-[#004d2c] text-white px-4 py-3 rounded-lg text-xs font-bold">
+          {toastMessage}
+        </div>
+      )}
 
       {/* Settings Grid Columns */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
         {/* Left Side: Password and Notify settings */}
         <div className="lg:col-span-7 space-y-6">
-
           {/* Change Password Box */}
           <div className="bg-white p-5 rounded-xl border border-emerald-950/5 space-y-4">
             <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
@@ -89,9 +101,14 @@ export default function SettingsView({
               <span>Change Security Password</span>
             </h4>
 
-            <form onSubmit={handleUpdatePassword} className="space-y-4 text-xs font-semibold">
+            <form
+              onSubmit={handleUpdatePassword}
+              className="space-y-4 text-xs font-semibold"
+            >
               <div>
-                <label className="block text-slate-500 mb-1.5 font-bold">Current Administrator Password</label>
+                <label className="block text-slate-500 mb-1.5 font-bold">
+                  Current Administrator Password
+                </label>
                 <input
                   type="password"
                   value={currentPassword}
@@ -103,7 +120,9 @@ export default function SettingsView({
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-500 mb-1.5 font-bold">New Secure Password</label>
+                  <label className="block text-slate-500 mb-1.5 font-bold">
+                    New Secure Password
+                  </label>
                   <input
                     type="password"
                     value={newPassword}
@@ -113,7 +132,9 @@ export default function SettingsView({
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-500 mb-1.5 font-bold">Confirm New Password</label>
+                  <label className="block text-slate-500 mb-1.5 font-bold">
+                    Confirm New Password
+                  </label>
                   <input
                     type="password"
                     value={confirmPassword}
@@ -144,25 +165,25 @@ export default function SettingsView({
                 label="Agent License Verification Submissions"
                 description="Flag immediate alert when new agents register government files in system."
                 enabled={preferences.verificationRequests}
-                onToggle={() => handleTogglePref('verificationRequests')}
+                onToggle={() => handleTogglePref("verificationRequests")}
               />
               <NotificationPreferenceToggle
                 label="Tenant Scam Reports and Disputes"
                 description="Blink warning ribbon on dashboard when malicious fraudulent agents are flagged."
                 enabled={preferences.newReports}
-                onToggle={() => handleTogglePref('newReports')}
+                onToggle={() => handleTogglePref("newReports")}
               />
               <NotificationPreferenceToggle
                 label="Subscription Expirers alert"
                 description="Email weekly warnings to operators containing licenses expiring within 72 hours."
                 enabled={preferences.subExpirations}
-                onToggle={() => handleTogglePref('subExpirations')}
+                onToggle={() => handleTogglePref("subExpirations")}
               />
               <NotificationPreferenceToggle
                 label="Multiple IP / Geo locations detections"
                 description="Suspend agent profiles on platform automatically during rapid geographic logins mismatch."
                 enabled={preferences.suspiciousActivity}
-                onToggle={() => handleTogglePref('suspiciousActivity')}
+                onToggle={() => handleTogglePref("suspiciousActivity")}
               />
             </div>
 
@@ -173,12 +194,10 @@ export default function SettingsView({
               Save Preferences
             </button>
           </div>
-
         </div>
 
         {/* Right Side: Invite & Administrators Panel List */}
         <div className="lg:col-span-5 space-y-6">
-
           <InviteAdminForm
             inviteEmail={inviteEmail}
             inviteRole={inviteRole}
@@ -202,31 +221,38 @@ export default function SettingsView({
                 >
                   <div className="flex items-center gap-2.5 overflow-hidden">
                     <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#004d2c] font-black flex items-center justify-center border border-emerald-100 flex-shrink-0 uppercase">
-                      {user.name.split(' ').map(s => s[0]).join('')}
+                      {user.name
+                        .split(" ")
+                        .map((s) => s[0])
+                        .join("")}
                     </div>
                     <div className="overflow-hidden">
-                      <span className="font-extrabold p-0.5 text-slate-800 leading-tight block truncate">{user.name}</span>
-                      <span className="text-[10px] text-slate-400 font-medium block truncate leading-none mt-0.5">{user.email}</span>
+                      <span className="font-extrabold p-0.5 text-slate-800 leading-tight block truncate">
+                        {user.name}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-medium block truncate leading-none mt-0.5">
+                        {user.email}
+                      </span>
                     </div>
                   </div>
 
-                  <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-widest ${user.role === 'Super Admin'
-                      ? 'bg-[#004d2c] text-white'
-                      : user.role === 'Moderator'
-                        ? 'bg-blue-50 text-blue-700 border border-blue-100'
-                        : 'bg-amber-50 text-amber-700 border border-amber-100'
-                    }`}>
+                  <span
+                    className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-widest ${
+                      user.role === "Super Admin"
+                        ? "bg-[#004d2c] text-white"
+                        : user.role === "Moderator"
+                          ? "bg-blue-50 text-blue-700 border border-blue-100"
+                          : "bg-amber-50 text-amber-700 border border-amber-100"
+                    }`}
+                  >
                     {user.role}
                   </span>
                 </div>
               ))}
             </div>
           </div>
-
         </div>
-
       </div>
-
     </div>
   );
 }

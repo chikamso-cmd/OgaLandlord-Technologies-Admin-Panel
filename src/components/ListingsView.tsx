@@ -3,39 +3,30 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import {
-  ArrowLeft,
-  Image as ImageIcon,
-  Copy
-} from 'lucide-react';
-import { OgaListing, OgaAgent } from '../types';
-import ListingFilters from './listings/ListingFilters';
+import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
+import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Image as ImageIcon, Copy } from "lucide-react";
+import { OgaListing, OgaAgent } from "../types";
+import { initialAgents, initialListings } from "../data";
+import ListingFilters from "./listings/ListingFilters";
+import ActionModal from "./ActionModal";
 
-interface ListingsViewProps {
-  listings: OgaListing[];
-  agents: OgaAgent[];
-  onApproveListing: (id: string) => void;
-  onTriggerRemoveListingModal: (id: string) => void;
-  onViewAgentProfile: (agentId: string) => void;
-  initialFilter?: string; // e.g. "Pending"
-}
-
-export default function ListingsView({
-  listings,
-  agents,
-  onApproveListing,
-  onTriggerRemoveListingModal,
-  onViewAgentProfile,
-  initialFilter = 'all'
-}: ListingsViewProps) {
+export default function ListingsView() {
+  const navigate = useNavigate();
+  const [listings, setListings] = useState<OgaListing[]>(initialListings);
+  const [agents] = useState<OgaAgent[]>(initialAgents);
   const location = useLocation();
   const routeState = location.state as { selectedListingId?: string } | null;
-  const [selectedListingId, setSelectedListingId] = useState<string | null>(routeState?.selectedListingId ?? null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState(initialFilter);
-  const [areaFilter, setAreaFilter] = useState('all');
+  const [selectedListingId, setSelectedListingId] = useState<string | null>(
+    routeState?.selectedListingId ?? null,
+  );
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [areaFilter, setAreaFilter] = useState("all");
+  const [activeModal, setActiveModal] = useState<"remove" | null>(null);
+  const [modalReason, setModalReason] = useState("");
 
   useEffect(() => {
     if (routeState?.selectedListingId) {
@@ -47,32 +38,44 @@ export default function ListingsView({
     setSelectedListingId(id);
   };
 
+  const confirmRemove = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!selectedListingId) return;
+    setListings((current) =>
+      current.map((listing) =>
+        listing.id === selectedListingId
+          ? { ...listing, status: "Removed", rentStatus: "Removed" }
+          : listing,
+      ),
+    );
+    setActiveModal(null);
+    setModalReason("");
+  };
+
   // Find selected listing
-  const selectedListing = listings.find(l => l.id === selectedListingId);
+  const selectedListing = listings.find((l) => l.id === selectedListingId);
 
   // Reset filters
   const resetFilters = () => {
-    setSearchTerm('');
-    setStatusFilter('all');
-    setAreaFilter('all');
+    setSearchTerm("");
+    setStatusFilter("all");
+    setAreaFilter("all");
   };
 
   // Filter listings
-  const filteredListings = listings.filter(l => {
+  const filteredListings = listings.filter((l) => {
     const matchesSearch =
       l.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       l.area.toLowerCase().includes(searchTerm.toLowerCase()) ||
       l.agentName.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus =
-      statusFilter === 'all' ||
-      l.status === statusFilter;
+    const matchesStatus = statusFilter === "all" || l.status === statusFilter;
 
     const matchesArea =
-      areaFilter === 'all' ||
-      (areaFilter === 'Lekki' && l.area.includes('Lekki')) ||
-      (areaFilter === 'Challenge' && l.area.includes('Challenge')) ||
-      (areaFilter === 'Akobo' && l.area.includes('Akobo'));
+      areaFilter === "all" ||
+      (areaFilter === "Lekki" && l.area.includes("Lekki")) ||
+      (areaFilter === "Challenge" && l.area.includes("Challenge")) ||
+      (areaFilter === "Akobo" && l.area.includes("Akobo"));
 
     return matchesSearch && matchesStatus && matchesArea;
   });
@@ -80,7 +83,6 @@ export default function ListingsView({
   if (selectedListing) {
     return (
       <div id="listing-detail-wrapper" className="space-y-6">
-
         {/* Navigation Breadcrumb Back link */}
         <button
           onClick={() => handleSelectListing(null)}
@@ -96,13 +98,27 @@ export default function ListingsView({
             <h3 className="text-sm font-extrabold text-slate-800 tracking-tight leading-none truncate max-w-sm md:max-w-xl">
               {selectedListing.title}
             </h3>
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mt-1.5">{selectedListing.id}</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mt-1.5">
+              {selectedListing.id}
+            </span>
           </div>
 
           <div className="flex gap-2.5">
-            {selectedListing.status !== 'Verified' && (
+            {selectedListing.status !== "Verified" && (
               <button
-                onClick={() => onApproveListing(selectedListing.id)}
+                onClick={() =>
+                  setListings((current) =>
+                    current.map((listing) =>
+                      listing.id === selectedListing.id
+                        ? {
+                            ...listing,
+                            status: "Verified",
+                            rentStatus: "Available",
+                          }
+                        : listing,
+                    ),
+                  )
+                }
                 className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-lg flex items-center gap-1.5 cursor-pointer shadow-sm shadow-emerald-700/15"
               >
                 {/* <CheckCheck size={14} /> */}
@@ -111,7 +127,7 @@ export default function ListingsView({
             )}
 
             <button
-              onClick={() => onTriggerRemoveListingModal(selectedListing.id)}
+              onClick={() => setActiveModal("remove")}
               className="px-4 py-2 bg-red-50  text-red-600 border border-red-200 text-xs font-medium rounded-lg flex items-center gap-1.5 cursor-pointer"
             >
               {/* <Trash2 size={14} /> */}
@@ -122,21 +138,22 @@ export default function ListingsView({
 
         {/* Graphic Hero, price overlay panel, and information structure */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
           {/* Left panel interior showcase & general parameters */}
           <div className="lg:col-span-8 space-y-6">
-
             {/* details overlay */}
 
             {/* Hero Property Frame */}
             <div className="relative aspect-video rounded-xl bg-slate-100 overflow-hidden border border-emerald-950/5 shadow-xs">
               <div className="bg-white p-3 w-40 rounded-lg absolute z-50 top-12 left-6 shadow-xs ">
-                <span className={`px-2.5 py-1  text-[10px] font-medium rounded-md shadow-md tracking-wider leading-none ${selectedListing.status === 'Verified'
-                  ? 'bg-emerald-500 text-white'
-                  : selectedListing.status === 'Pending'
-                    ? 'bg-amber-500 text-white'
-                    : 'bg-red-500 text-white'
-                  }`}>
+                <span
+                  className={`px-2.5 py-1  text-[10px] font-medium rounded-md shadow-md tracking-wider leading-none ${
+                    selectedListing.status === "Verified"
+                      ? "bg-emerald-500 text-white"
+                      : selectedListing.status === "Pending"
+                        ? "bg-amber-500 text-white"
+                        : "bg-red-500 text-white"
+                  }`}
+                >
                   {selectedListing.status}
                 </span>
                 <div className="flex gap-3 flex-col mt-2 mb-4 ">
@@ -155,7 +172,7 @@ export default function ListingsView({
                 </div>
 
                 <button
-                  onClick={() => onViewAgentProfile(selectedListing.agentId)}
+                  onClick={() => navigate("/agents")}
                   className="w-full py-2 bg-[#004d2c] hover:bg-[#00381e] text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer text-center block shadow-xs"
                 >
                   View Agent Profile
@@ -167,12 +184,15 @@ export default function ListingsView({
                 className="w-full h-full object-cover"
               />
               <div className="absolute top-4 left-4 flex gap-2">
-                <span className={`px-2.5 py-1 text-[10px] font-extrabold rounded-md shadow-md uppercase tracking-wider leading-none ${selectedListing.status === 'Verified'
-                  ? 'bg-emerald-500 text-white'
-                  : selectedListing.status === 'Pending'
-                    ? 'bg-amber-500 text-white'
-                    : 'bg-red-500 text-white'
-                  }`}>
+                <span
+                  className={`px-2.5 py-1 text-[10px] font-extrabold rounded-md shadow-md uppercase tracking-wider leading-none ${
+                    selectedListing.status === "Verified"
+                      ? "bg-emerald-500 text-white"
+                      : selectedListing.status === "Pending"
+                        ? "bg-amber-500 text-white"
+                        : "bg-red-500 text-white"
+                  }`}
+                >
                   {selectedListing.status}
                 </span>
 
@@ -198,7 +218,9 @@ export default function ListingsView({
                 <div className="flex flex-col gap-2 ">
                   <div className="pt-3 flex items-start gap-3">
                     <div>
-                      <span className="text-[10px] text-slate-400 font-medium block mb-1 ">Religion </span>
+                      <span className="text-[10px] text-slate-400 font-medium block mb-1 ">
+                        Religion{" "}
+                      </span>
                       <p className="text-xs font-medium text-slate-700 leading-tight">
                         {selectedListing.specialRequirements.religion}
                       </p>
@@ -206,9 +228,10 @@ export default function ListingsView({
                   </div>
 
                   <div className="  gap-3">
-
                     <div>
-                      <span className="text-[10px] text-slate-400 font-medium block mb-1 ">Marital Status</span>
+                      <span className="text-[10px] text-slate-400 font-medium block mb-1 ">
+                        Marital Status
+                      </span>
                       <p className="text-[10px] font-medium text-slate-700 leading-tight">
                         {selectedListing.specialRequirements.maritalStatus}
                       </p>
@@ -226,13 +249,25 @@ export default function ListingsView({
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
-                  <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=300&q=80" alt="Int Room 1" className="w-full h-full object-cover rounded-lg" />
+                  <img
+                    src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=300&q=80"
+                    alt="Int Room 1"
+                    className="w-full h-full object-cover rounded-lg"
+                  />
                 </div>
                 <div className="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
-                  <img src="https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=300&q=80" alt="Int Room 2" className="w-full h-full object-cover rounded-lg" />
+                  <img
+                    src="https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=300&q=80"
+                    alt="Int Room 2"
+                    className="w-full h-full object-cover rounded-lg"
+                  />
                 </div>
                 <div className="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200 relative">
-                  <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=300&q=80" alt="Int Room 3" className="w-full h-full object-cover opacity-60 blur-xxs rounded-lg" />
+                  <img
+                    src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=300&q=80"
+                    alt="Int Room 3"
+                    className="w-full h-full object-cover opacity-60 blur-xxs rounded-lg"
+                  />
                   <div className="absolute inset-0 bg-black/45 flex items-center justify-center rounded-lg">
                     <span className="text-[11px] font-extrabold text-white uppercase tracking-wider text-center px-1">
                       + 4 photos
@@ -241,38 +276,56 @@ export default function ListingsView({
                 </div>
               </div>
             </div>
-
           </div>
 
           {/* Right panel side status, direct price and contract fee layout */}
           <div className="lg:col-span-4 space-y-6">
-
             {/* Rental Fee Breakdown Column */}
             <div className="bg-white p-5 rounded-xl border border-emerald-950/5 space-y-5">
               <div className=" space-y-3">
                 <div className="flex flex-col text-[10px]">
-                  <span className="text-slate-400 font-medium">Rent Amount</span>
-                  <span className="font-bold text-slate-700">{selectedListing.breakdown.rent}</span>
+                  <span className="text-slate-400 font-medium">
+                    Rent Amount
+                  </span>
+                  <span className="font-bold text-slate-700">
+                    {selectedListing.breakdown.rent}
+                  </span>
                 </div>
 
                 <div className="flex flex-col text-xs">
-                  <span className="text-slate-400 font-medium">Service Charge</span>
-                  <span className="font-bold text-slate-700">{selectedListing.breakdown.serviceCharge}</span>
+                  <span className="text-slate-400 font-medium">
+                    Service Charge
+                  </span>
+                  <span className="font-bold text-slate-700">
+                    {selectedListing.breakdown.serviceCharge}
+                  </span>
                 </div>
 
                 <div className="flex flex-col text-[10px]">
-                  <span className="font-semibold text-slate-400">Damage Charge</span>
-                  <span className="font-bold text-slate-700">{selectedListing.breakdown.damageCharge}</span>
+                  <span className="font-semibold text-slate-400">
+                    Damage Charge
+                  </span>
+                  <span className="font-bold text-slate-700">
+                    {selectedListing.breakdown.damageCharge}
+                  </span>
                 </div>
 
                 <div className="flex flex-col text-[10px]">
-                  <span className="text-slate-400 font-medium">Agency / Agreement fee</span>
-                  <span className="font-bold text-slate-700">{selectedListing.breakdown.agentFee}</span>
+                  <span className="text-slate-400 font-medium">
+                    Agency / Agreement fee
+                  </span>
+                  <span className="font-bold text-slate-700">
+                    {selectedListing.breakdown.agentFee}
+                  </span>
                 </div>
 
                 <div className="flex flex-col border-t  border-slate-200 pt-3 text-[10px]">
-                  <span className="font-extrabold text-[#004d2c] ">Total Package</span>
-                  <span className="font-black text-slate-800 text-[10px] leading-none pt-1">{selectedListing.breakdown.total}</span>
+                  <span className="font-extrabold text-[#004d2c] ">
+                    Total Package
+                  </span>
+                  <span className="font-black text-slate-800 text-[10px] leading-none pt-1">
+                    {selectedListing.breakdown.total}
+                  </span>
                 </div>
               </div>
             </div>
@@ -282,10 +335,13 @@ export default function ListingsView({
                 <span className="text-[10px] font-medium tracking-tight block">
                   Inspection Fee
                 </span>
-                <span className="text-[10px] font-bold mt-1 block">{selectedListing.breakdown.inspectionFee}</span>
+                <span className="text-[10px] font-bold mt-1 block">
+                  {selectedListing.breakdown.inspectionFee}
+                </span>
 
                 <p className="pt-3 text-[10px] text-slate-500">
-                  A one time fee required to inspect the property, this fee is non-refundable and does count towards rent or other charges
+                  A one time fee required to inspect the property, this fee is
+                  non-refundable and does count towards rent or other charges
                 </p>
               </div>
             </div>
@@ -332,34 +388,58 @@ export default function ListingsView({
             <tbody className="divide-y divide-slate-100 text-xs">
               {filteredListings.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-400 font-medium">
-                    No active listings matching your search criterion. Update status filters above.
+                  <td
+                    colSpan={6}
+                    className="py-12 text-center text-slate-400 font-medium"
+                  >
+                    No active listings matching your search criterion. Update
+                    status filters above.
                   </td>
                 </tr>
               ) : (
                 filteredListings.map((listing) => (
-                  <tr key={listing.id} className="hover:bg-[#f4fcf8]/50 transition-colors">
+                  <tr
+                    key={listing.id}
+                    className="hover:bg-[#f4fcf8]/50 transition-colors"
+                  >
                     <td className="py-4 px-5">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-10 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
-                          <img src={listing.image} alt={listing.title} className="w-full h-full object-cover" />
+                          <img
+                            src={listing.image}
+                            alt={listing.title}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-slate-900 font-bold text-sm truncate text-[10px]">{listing.title}</p>
-                          <p className="text-[10px] text-slate-400 mt-1 truncate">{listing.id}</p>
+                          <p className="text-slate-900 font-bold text-sm truncate text-[10px]">
+                            {listing.title}
+                          </p>
+                          <p className="text-[10px] text-slate-400 mt-1 truncate">
+                            {listing.id}
+                          </p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-5 text-slate-600 text-[10px]">{listing.area}</td>
-                    <td className="py-4 px-5 text-slate-900 font-bold text-[10px]">{listing.price}</td>
-                    <td className="py-4 px-5 text-slate-700 text-[10px]">{listing.agentName}</td>
+                    <td className="py-4 px-5 text-slate-600 text-[10px]">
+                      {listing.area}
+                    </td>
+                    <td className="py-4 px-5 text-slate-900 font-bold text-[10px]">
+                      {listing.price}
+                    </td>
+                    <td className="py-4 px-5 text-slate-700 text-[10px]">
+                      {listing.agentName}
+                    </td>
                     <td className="py-4 px-5">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold  tracking-wide ${listing.status === 'Verified'
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-                        : listing.status === 'Pending'
-                          ? 'bg-amber-50 text-amber-700 border border-amber-100'
-                          : 'bg-red-50 text-red-700 border border-red-100'
-                        }`}>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold  tracking-wide ${
+                          listing.status === "Verified"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                            : listing.status === "Pending"
+                              ? "bg-amber-50 text-amber-700 border border-amber-100"
+                              : "bg-red-50 text-red-700 border border-red-100"
+                        }`}
+                      >
                         {listing.status}
                       </span>
                     </td>
@@ -371,7 +451,6 @@ export default function ListingsView({
                           className="inline-flex items-center gap-2 rounded-lg  px-3 py-1 text-[10px] font-bold text-red-400 transition-colors   cursor-pointer"
                         >
                           <Copy size={12} />
-
                         </button>
                         <button
                           type="button"
@@ -394,15 +473,37 @@ export default function ListingsView({
           Showing {filteredListings.length} of {listings.length} listings
         </div> */}
         <div className="p-4 bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-t border-slate-100 flex items-center justify-between">
-          <span>Showing {filteredListings.length} of {listings.length} listings</span>
+          <span>
+            Showing {filteredListings.length} of {listings.length} listings
+          </span>
           <div className="flex gap-1.5">
-            <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">Previous</button>
-            <button className="px-2.5 py-1 bg-[#004d2c] text-white rounded cursor-pointer">1</button>
-            <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">2</button>
-            <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">Next</button>
+            <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">
+              Previous
+            </button>
+            <button className="px-2.5 py-1 bg-[#004d2c] text-white rounded cursor-pointer">
+              1
+            </button>
+            <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">
+              2
+            </button>
+            <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">
+              Next
+            </button>
           </div>
         </div>
       </div>
+      <ActionModal
+        activeModal={activeModal}
+        modalTargetAgent={null}
+        modalReasonInput={modalReason}
+        modalScoreReduction={10}
+        modalExtendValue="3"
+        onReasonChange={setModalReason}
+        onScoreReductionChange={() => undefined}
+        onExtendValueChange={() => undefined}
+        onClose={() => setActiveModal(null)}
+        onConfirm={confirmRemove}
+      />
     </div>
   );
 }
