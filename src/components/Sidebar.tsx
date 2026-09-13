@@ -3,18 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { 
-  Users, 
-  HomeIcon,  
-  CreditCard, 
-  Settings, 
-  X, 
+import {
+  Users,
+  HomeIcon,
+  CreditCard,
+  Settings,
+  X,
   LogOut,
   LayoutGrid,
-  Flag
-} from 'lucide-react';
-import { DashboardTab } from '../types';
-import { Link } from 'react-router-dom';
+  Flag,
+} from "lucide-react";
+import { DashboardTab } from "../types";
+import { Link, useNavigate } from "react-router-dom";
 
 interface SidebarProps {
   activeTab: DashboardTab;
@@ -31,24 +31,48 @@ export default function Sidebar({
   onLogout,
   onCloseMobileDrawer,
   pendingVerificationsCount = 47,
-  openReportsCount = 12
+  openReportsCount = 12,
 }: SidebarProps) {
-  
   const menuItems = [
-    { id: 'dashboard' as DashboardTab, label: 'Dashboard', icon: LayoutGrid },
-    { id: 'agents' as DashboardTab, label: 'Agents', icon: Users, badge: pendingVerificationsCount },
-    { id: 'listings' as DashboardTab, label: 'Listings', icon: HomeIcon },
-    { id: 'reports' as DashboardTab, label: 'Reports', icon: Flag, badge: openReportsCount },
-    { id: 'subscriptions' as DashboardTab, label: 'Subscriptions', icon: CreditCard },
-    { id: 'settings' as DashboardTab, label: 'Settings', icon: Settings }
+    { id: "dashboard" as DashboardTab, label: "Dashboard", icon: LayoutGrid },
+    {
+      id: "agents" as DashboardTab,
+      label: "Agents",
+      icon: Users,
+      badge: pendingVerificationsCount,
+    },
+    { id: "listings" as DashboardTab, label: "Listings", icon: HomeIcon },
+    {
+      id: "reports" as DashboardTab,
+      label: "Reports",
+      icon: Flag,
+      badge: openReportsCount,
+    },
+    {
+      id: "subscriptions" as DashboardTab,
+      label: "Subscriptions",
+      icon: CreditCard,
+    },
+    { id: "settings" as DashboardTab, label: "Settings", icon: Settings },
   ];
-
+  const navigate = useNavigate();
   const handleTabClick = (tabId: DashboardTab) => {
     onTabChange(tabId);
     if (onCloseMobileDrawer) {
       onCloseMobileDrawer();
     }
   };
+
+  const savedData = localStorage.getItem("user");
+  const savedUser = savedData ? JSON.parse(savedData) : null;
+  if (!savedUser) {
+    return null;
+  }
+  function HandleLogout() {
+    localStorage.clear;
+    navigate("/login");
+    console.log("button clicked");
+  }
 
   return (
     <div className="w-50 max-w-60 h-screen bg-[#004d2c] text-slate-100 flex flex-col justify-between border-r border-[#003d22]">
@@ -57,7 +81,11 @@ export default function Sidebar({
         <div className="p-5 border-b border-[#005e36] flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center text-white">
-              <img src="/housekey.png" alt="Ogalandlord logo" className="w-6 object-fit"  />
+              <img
+                src="/housekey.png"
+                alt="Ogalandlord logo"
+                className="w-6 object-fit"
+              />
             </div>
             <div>
               <h2 className="text-sm font-bold tracking-tight text-white leading-none">
@@ -69,7 +97,7 @@ export default function Sidebar({
             </div>
           </div>
           {onCloseMobileDrawer && (
-            <button 
+            <button
               onClick={onCloseMobileDrawer}
               className="p-1 px-2.5 bg-white/10 text-white rounded-lg hover:bg-white/20 hover:text-white md:hidden cursor-pointer"
             >
@@ -89,14 +117,18 @@ export default function Sidebar({
                 onClick={() => handleTabClick(item.id)}
                 className={`w-full flex items-center justify-between px-4 py-2 rounded-lg text-[10px]  transition-all cursor-pointer group ${
                   isActive
-                    ? 'bg-[#eaefec] text-[#004d2c] font-semibold shadow-sm'
-                    : 'hover:bg-white/10 text-green-100 hover:text-white'
+                    ? "bg-[#eaefec] text-[#004d2c] font-semibold shadow-sm"
+                    : "hover:bg-white/10 text-green-100 hover:text-white"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <IconComponent 
-                    size={14} 
-                    className={isActive ? 'text-[#004d2c]' : 'text-green-300 group-hover:text-white transition-colors'} 
+                  <IconComponent
+                    size={14}
+                    className={
+                      isActive
+                        ? "text-[#004d2c]"
+                        : "text-green-300 group-hover:text-white transition-colors"
+                    }
                   />
                   <span>{item.label}</span>
                 </div>
@@ -124,21 +156,24 @@ export default function Sidebar({
             </div>
             <div className="overflow-hidden">
               <h4 className="text-[10px] font-bold text-white leading-tight truncate">
-                Admin Officer
+                {/* {savedUser.user.user.name || "Guest Agent"} */}
               </h4>
               <p className="text-[10px] text-green-300 leading-tight truncate">
-                admin@ogalandlord.com
+                {/* {savedUser.user.user.email || "guestadmin@gmail.com"} */}
               </p>
             </div>
           </div>
-          <Link to="/login">
+          
             <button
+            onClick={HandleLogout}
               title="Log out session"
-              className="p-1.5 text-green-300 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+              className="p-1.5 text-green-300 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
             >
+
               <LogOut size={15} />
+              Log out
             </button>
-          </Link>
+         
         </div>
       </div>
     </div>

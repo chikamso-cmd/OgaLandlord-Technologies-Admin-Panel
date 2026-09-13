@@ -32,13 +32,13 @@ export default function App() {
     setIsMobileMenuOpen(false);
   };
 
-  if (!isLoggedIn) return <Login onLogin={handleLogin} />;
+  // if (!isLoggedIn) return <Login  />;
 
   return (
     <>
       <Routes>
-        <Route path="/login" element={<Login onLogin={handleLogin} />} />
-        <Route element={<ProtectedRoute isAuthenticated={isLoggedIn} />}>
+        <Route path="/login" element={<Login />} />
+        {/* <Route element={<ProtectedRoute isAuthenticated={isLoggedIn} />}> */}
           <Route
             element={
               <AppLayout
@@ -63,7 +63,7 @@ export default function App() {
             <Route path="/subscriptions" element={<SubscriptionsView />} />
             <Route path="/settings" element={<SettingsView />} />
           </Route>
-        </Route>
+        {/* </Route> */}
       </Routes>
       <ToastContainer autoClose={4000} position="top-right" />
     </>

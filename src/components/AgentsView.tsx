@@ -1,9 +1,4 @@
-﻿/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import { useState } from "react";
+﻿import { useState } from "react";
 import { OgaAgent, OgaListing } from "../types";
 import { initialAgents, initialListings } from "../data";
 import ActionModal from "./ActionModal";
@@ -12,6 +7,8 @@ import AgentTable from "./agents/AgentTable";
 import AgentDetailHeader from "./agents/AgentDetailHeader";
 import AgentActionPanel from "./agents/AgentActionPanel";
 import AgentDetailBody from "./agents/AgentDetailBody";
+import { AlertCircle, Loader } from "lucide-react";
+import useProperties from "../hooks/useProperties";
 
 export default function AgentsView() {
   const [agents, setAgents] = useState<OgaAgent[]>(initialAgents);
@@ -28,6 +25,9 @@ export default function AgentsView() {
   const [scoreReduction, setScoreReduction] = useState(10);
 
   const selectedAgent = agents.find((a) => a.id === selectedAgentId);
+
+  const { data: agent = [], isLoading, isError, error } = useProperties();
+  console.log(agent, "fetched agents");
 
   const resetFilters = () => {
     setSearchTerm("");
@@ -140,6 +140,25 @@ export default function AgentsView() {
           }
         />
         <AgentDetailBody agent={selectedAgent} listings={agentListings} />
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="font-bold text-green-800 text-center m-auto text-xl flex gap-2 items-center justify-center mt-100">
+        {" "}
+        <Loader className="animate-spin" /> Loading...
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex justify-center gap-2 items-center font-bold text-red-800 text-center m-auto text-xl mt-100">
+        {" "}
+        <AlertCircle />
+        {error?.message}
       </div>
     );
   }

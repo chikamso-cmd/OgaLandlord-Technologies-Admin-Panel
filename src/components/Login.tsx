@@ -14,14 +14,21 @@ import {
 } from "lucide-react";
 import api from "../services/Axios";
 
-// interface LoginProps {
-//   onLogin: (email: string) => void;
-// }
+interface LoginProps  {
+  // onLogin: (email: string) => void; 
+email: string;
+password: string;
+}
 
 export default function Login() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState<LoginProps>(
+    {
+      email: "",
+       password: ""
+      }
+  );
+  // const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -30,21 +37,23 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
 
-    if (!email || !password) {
+    if (!form.email || !form.password) {
       setError("Please fill in all required fields.");
-      console.log("login error", email, password);
+      console.log("login error", form.email, form.password);
       return;
     }
-    if (password.length < 8) {
+    if (form.password.length < 8) {
       setError("Password must be at least 8 character long");
       return;
     }
+    
     const payload = {
-      email: "",
-      password: "",
+      email: `${form.email}`,
+      password: `${form.password}`,
     };
     try {
        const res = await api.post(`/admin/auth/login`, payload)
+       console.log(payload, "form payload")
       console.log(res, "admin loginformation");
       toast.success("user loggin successfully navogating to the dashboard");
       navigate("/dashboard");
@@ -120,8 +129,8 @@ export default function Login() {
               <input
                 id="login-email-input"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={form.email}
+                onChange={(e) => setForm({...form, email: e.target.value})}
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 focus:bg-white text-sm text-slate-800 rounded-lg border border-slate-200 outline-none focus:border-[#004d2c] focus:ring-1 focus:ring-[#004d2c] transition-all"
                 placeholder="admin@ogalandlord.com"
               />
@@ -141,8 +150,8 @@ export default function Login() {
               <input
                 id="login-password-input"
                 type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={form.password}
+                onChange={(e) => setForm({...form, password: e.target.value})}
                 className="w-full pl-10 pr-10 py-2.5 bg-slate-50 hover:bg-slate-100/50 focus:bg-white text-sm text-slate-800 rounded-lg border border-slate-200 outline-none focus:border-[#004d2c] focus:ring-1 focus:ring-[#004d2c] transition-all"
                 placeholder="Enter your password"
               />

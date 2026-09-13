@@ -7,6 +7,8 @@ interface AgentDetailBodyProps {
 }
 
 export default function AgentDetailBody({ agent, listings }: AgentDetailBodyProps) {
+
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <div className="lg:col-span-4 space-y-6">
