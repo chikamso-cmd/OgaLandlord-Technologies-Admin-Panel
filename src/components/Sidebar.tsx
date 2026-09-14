@@ -63,13 +63,11 @@ export default function Sidebar({
     }
   };
 
-  const savedData = localStorage.getItem("user");
+  const savedData = localStorage.getItem("data");
   const savedUser = savedData ? JSON.parse(savedData) : null;
-  if (!savedUser) {
-    return null;
-  }
+  if (!savedUser) return null; // or handle the case when user data is not available
   function HandleLogout() {
-    localStorage.clear;
+    localStorage.clear();
     navigate("/login");
     console.log("button clicked");
   }
@@ -155,25 +153,28 @@ export default function Sidebar({
               AO
             </div>
             <div className="overflow-hidden">
-              <h4 className="text-[10px] font-bold text-white leading-tight truncate">
-                {/* {savedUser.user.user.name || "Guest Agent"} */}
+              <h4
+                className="text-[10px] font-bold text-white leading-tight truncate"
+                title={savedUser.data?.name || "guestadmin@gmail.com"}
+              >
+                {savedUser.data?.name || "Guest Agent"}
               </h4>
-              <p className="text-[10px] text-green-300 leading-tight truncate">
-                {/* {savedUser.user.user.email || "guestadmin@gmail.com"} */}
+              <p
+                className="text-[10px] text-green-300 leading-tight truncate"
+                title={savedUser.data?.email || "guestadmin@gmail.com"}
+              >
+                {savedUser.data?.email || "guestadmin@gmail.com"}
               </p>
             </div>
           </div>
-          
-            <button
-            onClick={HandleLogout}
-              title="Log out session"
-              className="p-1.5 text-green-300 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
-            >
 
-              <LogOut size={15} />
-              Log out
-            </button>
-         
+          <button
+            onClick={HandleLogout}
+            title="Log out"
+            className="p-1.5 text-green-300 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
+          >
+            <LogOut size={15} />
+          </button>
         </div>
       </div>
     </div>

@@ -12,11 +12,14 @@ import SubscriptionsView from "./components/SubscriptionsView";
 import SettingsView from "./components/SettingsView";
 import ProtectedRoute from "./Protectedroute/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() =>
+    Boolean(localStorage.getItem("data")),
+  );
   const [activeTab, setActiveTab] = useState<DashboardTab>("dashboard");
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -31,14 +34,15 @@ export default function App() {
     setActiveTab(tab);
     setIsMobileMenuOpen(false);
   };
-
-  // if (!isLoggedIn) return <Login  />;
+  const queryClient = new QueryClient();
 
   return (
     <>
+       
+        <QueryClientProvider client={queryClient}>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        {/* <Route element={<ProtectedRoute isAuthenticated={isLoggedIn} />}> */}
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
+        <Route element={<ProtectedRoute isAuthenticated={isLoggedIn} />}>
           <Route
             element={
               <AppLayout
@@ -63,8 +67,9 @@ export default function App() {
             <Route path="/subscriptions" element={<SubscriptionsView />} />
             <Route path="/settings" element={<SettingsView />} />
           </Route>
-        {/* </Route> */}
+        </Route>
       </Routes>
+        </QueryClientProvider>
       <ToastContainer autoClose={4000} position="top-right" />
     </>
   );

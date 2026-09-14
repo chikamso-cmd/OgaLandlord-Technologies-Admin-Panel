@@ -1,7 +1,7 @@
 import api from "./Axios";
 
 export const agentsApi = async (): Promise<any[]> => {
-  const response = await api.get("/auth/agents?role=agent");
+  const response = await api.get("/admin/all_users?role=agent");
   return response.data;
 };
 export const listingsApi = async (): Promise<any[]> => {

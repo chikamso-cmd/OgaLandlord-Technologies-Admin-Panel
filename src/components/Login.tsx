@@ -14,20 +14,21 @@ import {
 } from "lucide-react";
 import api from "../services/Axios";
 
-interface LoginProps  {
-  // onLogin: (email: string) => void; 
-email: string;
-password: string;
+interface LoginForm {
+  email: string;
+  password: string;
 }
 
-export default function Login() {
+interface LoginProps {
+  onLogin?: () => void;
+}
+
+export default function Login({ onLogin }: LoginProps) {
   const navigate = useNavigate();
-  const [form, setForm] = useState<LoginProps>(
-    {
-      email: "",
-       password: ""
-      }
-  );
+  const [form, setForm] = useState<LoginForm>({
+    email: "",
+    password: "",
+  });
   // const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -40,31 +41,30 @@ export default function Login() {
     if (!form.email || !form.password) {
       setError("Please fill in all required fields.");
       console.log("login error", form.email, form.password);
+      setLoading(false);
       return;
     }
     if (form.password.length < 8) {
       setError("Password must be at least 8 character long");
+      setLoading(false);
       return;
     }
-    
     const payload = {
       email: `${form.email}`,
       password: `${form.password}`,
     };
+
     try {
-       const res = await api.post(`/admin/auth/login`, payload)
-       console.log(payload, "form payload")
+      const res = await api.post(`/admin/auth/login`, payload);
+      console.log(payload, "form payload");
+      console.log("button clicked");
       console.log(res, "admin loginformation");
-      toast.success("user loggin successfully navogating to the dashboard");
+      localStorage.setItem("data", JSON.stringify(res?.data));
+      onLogin?.();
       navigate("/dashboard");
-      // setTimeout(() => {}, 4000);
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", res.data.user);
     } catch (err: any) {
-      console.error(err.message, "error")
-      toast.error(
-        err.response?.data?.message || "An error occurred while logging in.",
-      );
+      console.error(err.message, "error");
+
       setError("An error occurred while logging in.");
     } finally {
       setLoading(false);
@@ -130,7 +130,7 @@ export default function Login() {
                 id="login-email-input"
                 type="email"
                 value={form.email}
-                onChange={(e) => setForm({...form, email: e.target.value})}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 hover:bg-slate-100/50 focus:bg-white text-sm text-slate-800 rounded-lg border border-slate-200 outline-none focus:border-[#004d2c] focus:ring-1 focus:ring-[#004d2c] transition-all"
                 placeholder="admin@ogalandlord.com"
               />
@@ -151,7 +151,7 @@ export default function Login() {
                 id="login-password-input"
                 type={showPassword ? "text" : "password"}
                 value={form.password}
-                onChange={(e) => setForm({...form, password: e.target.value})}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
                 className="w-full pl-10 pr-10 py-2.5 bg-slate-50 hover:bg-slate-100/50 focus:bg-white text-sm text-slate-800 rounded-lg border border-slate-200 outline-none focus:border-[#004d2c] focus:ring-1 focus:ring-[#004d2c] transition-all"
                 placeholder="Enter your password"
               />
