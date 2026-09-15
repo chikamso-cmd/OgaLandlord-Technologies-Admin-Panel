@@ -80,6 +80,7 @@ export default function DashboardView() {
         <p className="text-xs text-slate-500">
           Overview of platform activity and pending actions
         </p>
+        
       </div>
 
       {/* 6 Grid layout KPI Stats Cards */}

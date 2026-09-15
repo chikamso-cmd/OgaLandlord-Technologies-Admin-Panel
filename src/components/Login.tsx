@@ -60,6 +60,14 @@ export default function Login({ onLogin }: LoginProps) {
       console.log("button clicked");
       console.log(res, "admin loginformation");
       localStorage.setItem("data", JSON.stringify(res?.data));
+      const responseData = res?.data?.data || res?.data;
+      const accessToken =
+        responseData?.accessToken ||
+        responseData?.access_token ||
+        responseData?.token;
+      if (accessToken) {
+        localStorage.setItem("data", res.data);
+      }
       onLogin?.();
       navigate("/dashboard");
     } catch (err: any) {

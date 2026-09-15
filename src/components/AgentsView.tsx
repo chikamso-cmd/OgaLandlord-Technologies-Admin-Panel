@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { OgaAgent, OgaListing } from "../types";
 import { initialAgents, initialListings } from "../data";
 import ActionModal from "./ActionModal";
@@ -7,10 +7,11 @@ import AgentTable from "./agents/AgentTable";
 import AgentDetailHeader from "./agents/AgentDetailHeader";
 import AgentActionPanel from "./agents/AgentActionPanel";
 import AgentDetailBody from "./agents/AgentDetailBody";
-import { AlertCircle, Loader } from "lucide-react";
 import useProperties from "../hooks/useProperties";
+import { AlertTriangle, Loader } from "lucide-react";
 
 export default function AgentsView() {
+  const { data: fetchedAgents, isLoading, isError, error } = useProperties();
   const [agents, setAgents] = useState<OgaAgent[]>(initialAgents);
   const [listings] = useState<OgaListing[]>(initialListings);
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
@@ -24,10 +25,11 @@ export default function AgentsView() {
   const [modalReason, setModalReason] = useState("");
   const [scoreReduction, setScoreReduction] = useState(10);
 
-  const selectedAgent = agents.find((a) => a.id === selectedAgentId);
+  useEffect(() => {
+    if (fetchedAgents) setAgents(fetchedAgents);
+  }, [fetchedAgents]);
 
-  const { data: agent = [], isLoading, isError, error } = useProperties();
-  console.log(agent, "fetched agents");
+  const selectedAgent = agents.find((a) => a.data?.id === selectedAgentId);
 
   const resetFilters = () => {
     setSearchTerm("");
@@ -55,7 +57,7 @@ export default function AgentsView() {
     if (!activeModal || !modalTargetId) return;
     setAgents((current) =>
       current.map((agent) => {
-        if (agent.id !== modalTargetId) return agent;
+        if (agent.data?.id !== modalTargetId) return agent;
         if (
           activeModal === "ban" ||
           activeModal === "suspend" ||
@@ -63,22 +65,28 @@ export default function AgentsView() {
         ) {
           return {
             ...agent,
-            verificationStatus: "Blocked",
-            ...(activeModal === "ban"
-              ? { trustScore: 0, activeListingsCount: 0 }
-              : {}),
+            data: {
+              ...agent.data,
+              verificationStatus: "Blocked",
+              ...(activeModal === "ban"
+                ? { trustScore: 0, activeListingsCount: 0 }
+                : {}),
+            },
           };
         }
         return {
           ...agent,
-          trustScore: Math.max(0, agent.trustScore - scoreReduction),
+          data: {
+            ...agent.data,
+            trustScore: Math.max(0, agent.data?.trustScore - scoreReduction),
+          },
           responseTime: Math.max(
             0,
-            agent.responseTime - Math.round(scoreReduction / 2),
+            agent.data?.responseTime - Math.round(scoreReduction / 2),
           ),
           clientSatisfaction: Math.max(
             0,
-            agent.clientSatisfaction - Math.round(scoreReduction / 2),
+            agent.data?.clientSatisfaction - Math.round(scoreReduction / 2),
           ),
         };
       }),
@@ -88,21 +96,37 @@ export default function AgentsView() {
 
   const filteredAgents = agents.filter((agent) => {
     const matchesSearch =
-      agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      agent.phone.includes(searchTerm) ||
-      agent.email.toLowerCase().includes(searchTerm.toLowerCase());
+      agent.data?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      agent.data?.phone.includes(searchTerm) ||
+      agent.data?.email.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
-      statusFilter === "all" || agent.verificationStatus === statusFilter;
+      statusFilter === "all" || agent.data?.verificationStatus === statusFilter;
     const matchesPlan =
-      planFilter === "all" || agent.subscriptionPlan === planFilter;
+      planFilter === "all" || agent.data?.subscriptionPlan === planFilter;
 
     return matchesSearch && matchesStatus && matchesPlan;
   });
 
   const agentListings = selectedAgent
-    ? listings.filter((l) => l.agentId === selectedAgent.id)
+    ? listings.filter((l) => l.agentId === selectedAgent.data?.id)
     : [];
+
+  if (isLoading) {
+    return (
+      <div className="py-20 text-center font-bold flex items-center gap-3 justify-center text-emerald-800 mt-50 mb-50">
+       <Loader size={20} className="animate-spin" /> Loading agents...
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="py-20 text-center font-bold text-red-800 flex items-center gap-3 justify-center mt-50 mb-50">
+        <AlertTriangle size={20} /> {error.message}
+      </div>
+    );
+  }
 
   if (selectedAgent) {
     return (
@@ -117,8 +141,15 @@ export default function AgentsView() {
           onApproveVerification={(agentId) =>
             setAgents((current) =>
               current.map((agent) =>
-                agent.id === agentId
-                  ? { ...agent, verificationStatus: "Verified", trustScore: 90 }
+                agent.data?.id === agentId
+                  ? {
+                      ...agent,
+                      data: {
+                        ...agent.data,
+                        verificationStatus: "Verified",
+                        trustScore: 90,
+                      },
+                    }
                   : agent,
               ),
             )
@@ -126,13 +157,16 @@ export default function AgentsView() {
           onResetTrustScore={(agentId) =>
             setAgents((current) =>
               current.map((agent) =>
-                agent.id === agentId
+                agent.data?.id === agentId
                   ? {
                       ...agent,
-                      trustScore: 95,
-                      responseTime: 95,
-                      transactionSuccess: 92,
-                      clientSatisfaction: 98,
+                      data: {
+                        ...agent.data,
+                        trustScore: 95,
+                        responseTime: 95,
+                        transactionSuccess: 92,
+                        clientSatisfaction: 98,
+                      },
                     }
                   : agent,
               ),
@@ -140,25 +174,6 @@ export default function AgentsView() {
           }
         />
         <AgentDetailBody agent={selectedAgent} listings={agentListings} />
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="font-bold text-green-800 text-center m-auto text-xl flex gap-2 items-center justify-center mt-100">
-        {" "}
-        <Loader className="animate-spin" /> Loading...
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="flex justify-center gap-2 items-center font-bold text-red-800 text-center m-auto text-xl mt-100">
-        {" "}
-        <AlertCircle />
-        {error?.message}
       </div>
     );
   }
@@ -206,7 +221,7 @@ export default function AgentsView() {
       <ActionModal
         activeModal={activeModal}
         modalTargetAgent={
-          agents.find((agent) => agent.id === modalTargetId) ?? null
+          agents.find((agent) => agent.data?.id === modalTargetId) ?? null
         }
         modalReasonInput={modalReason}
         modalScoreReduction={scoreReduction}

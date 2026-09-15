@@ -31,21 +31,23 @@ export interface OgaRecentActivity {
 }
 
 export interface OgaAgent {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  avatar: string;
-  verificationStatus: 'Verified' | 'Pending' | 'Blocked';
-  trustScore: number;
-  activeListingsCount: number;
-  subscriptionPlan: 'Premium' | 'Free';
-  experienceYears: number;
-  dealsClosed: number;
-  responseTime: number; // score out of 100
-  transactionSuccess: number; // score out of 100
-  clientSatisfaction: number; // score out of 100
-  areasOfOperation: string[];
+  data: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    avatar: string;
+    verificationStatus: "not_started" | "Verified" | "Pending" | "Blocked";
+    trustScore: number;
+    activeListingsCount: number;
+    subscriptionPlan: "Premium" | "Free";
+    experienceYears: number;
+    dealsClosed: number;
+    responseTime: number; // score out of 100
+    transactionSuccess: number; // score out of 100
+    clientSatisfaction: number; // score out of 100
+    areasOfOperation: string[];
+  };
 }
 
 export interface OgaListing {

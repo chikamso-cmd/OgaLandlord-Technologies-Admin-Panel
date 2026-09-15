@@ -20,13 +20,13 @@ export default function AgentDetailBody({ agent, listings }: AgentDetailBodyProp
           <div className="flex items-center gap-8 border-t md:border-t-0 pt-4 md:pt-0 border-slate-100">
             <div className="text-center">
               <div className="relative flex gap-3 items-center ">
-                <div className={`w-16 h-16 rounded-full flex flex-col items-center justify-center border-4 ${agent.trustScore >= 80
+                <div className={`w-16 h-16 rounded-full flex flex-col items-center justify-center border-4 ${agent.data?.trustScore >= 80
                     ? 'border-emerald-800 bg-emerald-50/50 text-green-800'
-                    : agent.trustScore >= 50
+                    : agent.data?.trustScore >= 50
                       ? 'border-amber-500 bg-amber-50/50 text-amber-500'
                       : 'border-red-500 bg-red-50/50 text-red-500'
-                  } `} style={{ border: `${agent.trustScore}%` }}>
-                  <p className="text-lg flex flex-col font-black  tracking-tighter leading-none">{agent.trustScore} <span className="text-[9px] pt-1">/100</span> </p>
+                  } `} style={{ border: `${agent.data?.trustScore}%` }}>
+                  <p className="text-lg flex flex-col font-black  tracking-tighter leading-none">{agent.data?.trustScore} <span className="text-[9px] pt-1">/100</span> </p>
                 </div>
                 <div>
                   <h1 className="text-left font-medium text-green-800">Excellent </h1>
@@ -37,9 +37,9 @@ export default function AgentDetailBody({ agent, listings }: AgentDetailBodyProp
           </div>
 
           <div className="space-y-4">
-            <ScoreRow label="Response Time" value={agent.responseTime} />
-            <ScoreRow label="Transaction Success" value={agent.transactionSuccess} />
-            <ScoreRow label="Client Satisfaction" value={agent.clientSatisfaction} />
+            <ScoreRow label="Response Time" value={agent.data?.responseTime} />
+            <ScoreRow label="Transaction Success" value={agent.data?.transactionSuccess} />
+            <ScoreRow label="Client Satisfaction" value={agent.data?.clientSatisfaction} />
           </div>
         </div>
 
@@ -48,7 +48,7 @@ export default function AgentDetailBody({ agent, listings }: AgentDetailBodyProp
             Areas of Operation
           </h4>
           <div className="flex flex-wrap gap-2">
-            {agent.areasOfOperation.map((area, i) => (
+            {agent.data?.areasOfOperation.map((area, i) => (
               <span
                 key={i}
                 className="px-2.5 py-1 bg-slate-100 hover:bg-[#e6f4ea] hover:text-[#004d2c] text-slate-700 rounded-md text-xs font-semibold flex items-center gap-1 cursor-default transition-all"
@@ -85,7 +85,7 @@ export default function AgentDetailBody({ agent, listings }: AgentDetailBodyProp
               <span className="text-[10px] text-slate-400 font-bold block mb-1.5 uppercase">Selfie Verification</span>
               <div className="relative aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
                 <img
-                  src={agent.avatar}
+                  src={agent.data?.avatar}
                   alt="Selfie verification"
                   className="w-full h-full object-cover"
                 />

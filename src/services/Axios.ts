@@ -69,11 +69,11 @@ const isAuthRequest = (url?: string) =>
   (url.includes("auth/login") || url.includes("auth/refresh"));
 
 const redirectToLogin = () => {
-  const user = localStorage.getItem("user");
-  const userRole = user ? JSON.parse(user).role : null;
+  // const user = localStorage.getItem("data");
+  // const userRole = user ? JSON.parse(user).role : null;
+  localStorage.removeItem("data");
   localStorage.removeItem("token");
-  localStorage.removeItem("user");
-  const loginUrl = userRole === "agent" ? "/agent/login" : "/tenant/login";
+  const loginUrl = "/login";
   if (!window.location.pathname.includes("/login")) {
     window.location.href = loginUrl;
   }
@@ -145,7 +145,14 @@ api.interceptors.response.use(
 
     try {
       const res = await api.post("/auth/refresh");
-      const newAccessToken = res.data.accessToken;
+      const responseData = res.data?.data || res.data;
+      const newAccessToken =
+        responseData?.accessToken ||
+        responseData?.access_token ||
+        responseData?.token;
+      if (!newAccessToken) {
+        throw new Error("Refresh response did not include an access token");
+      }
       localStorage.setItem("token", newAccessToken);
       api.defaults.headers.Authorization = `Bearer ${newAccessToken}`;
       processQueue(null, newAccessToken);
