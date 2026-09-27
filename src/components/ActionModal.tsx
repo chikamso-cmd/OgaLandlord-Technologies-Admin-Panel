@@ -23,10 +23,10 @@ export default function ActionModal({
     activeModal,
     modalTargetAgent,
     modalReasonInput,
-    modalScoreReduction,
+    // modalScoreReduction,
     // modalExtendValue,
     onReasonChange,
-    onScoreReductionChange,
+    // onScoreReductionChange,
     // onExtendValueChange,
     onClose,
     // onConfirm,
@@ -73,10 +73,10 @@ export default function ActionModal({
         return (
             <ReduceTrustScoreModal
                 agent={modalTargetAgent}
-                modalScoreReduction={modalScoreReduction}
-                modalReasonInput={modalReasonInput}
-                onScoreReductionChange={onScoreReductionChange}
-                onReasonChange={onReasonChange}
+                // modalScoreReduction={modalScoreReduction}
+                // modalReasonInput={modalReasonInput}
+                // onScoreReductionChange={onScoreReductionChange}
+                // onReasonChange={onReasonChange}
                 onClose={onClose}
                 // onConfirm={onConfirm}
             />

@@ -249,7 +249,7 @@ export default function DashboardView() {
                 key={act.id}
                 className="flex items-center justify-between text-xs pb-3 border-b border-slate-100 last:border-none last:pb-0 font-medium"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 overflow-hidden">
                   <span className="w-1.5 h-1.5 bg-emerald-700 rounded-full shrink-0"></span>
                   <div className="flex  flex-col gap-2">
                     <p className="text-slate-700 leading-normal font-bold text-[10px]">
