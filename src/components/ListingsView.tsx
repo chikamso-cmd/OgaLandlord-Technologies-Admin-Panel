@@ -7,15 +7,22 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Image as ImageIcon, Copy } from "lucide-react";
+import { ArrowLeft, Image as ImageIcon, Copy, Loader, AlertTriangle } from "lucide-react";
 import { OgaListing, OgaAgent } from "../types";
 import { initialAgents, initialListings } from "../data";
 import ListingFilters from "./listings/ListingFilters";
 import ActionModal from "./ActionModal";
+import useListings from "../hooks/useListings";
 
 export default function ListingsView() {
   const navigate = useNavigate();
   const [listings, setListings] = useState<OgaListing[]>(initialListings);
+  const {
+    data: fetchedListings,
+    isLoading,
+    isError,
+    error,
+  } = useListings();
   const [agents] = useState<OgaAgent[]>(initialAgents);
   const location = useLocation();
   const routeState = location.state as { selectedListingId?: string } | null;
@@ -27,6 +34,10 @@ export default function ListingsView() {
   const [areaFilter, setAreaFilter] = useState("all");
   const [activeModal, setActiveModal] = useState<"remove" | null>(null);
   const [modalReason, setModalReason] = useState("");
+
+  useEffect(() => {
+    if (fetchedListings) setListings(fetchedListings);
+  }, [fetchedListings]);
 
   useEffect(() => {
     if (routeState?.selectedListingId) {
@@ -79,6 +90,22 @@ export default function ListingsView() {
 
     return matchesSearch && matchesStatus && matchesArea;
   });
+
+  if (isLoading) {
+    return (
+      <div className="py-20 text-center font-bold flex items-center gap-3 justify-center text-emerald-800">
+        <Loader size={20} className="animate-spin" /> Loading listings...
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="py-20 text-center font-bold text-red-800 flex items-center gap-3 justify-center">
+        <AlertTriangle size={20} /> {error.message}
+      </div>
+    );
+  }
 
   if (selectedListing) {
     return (

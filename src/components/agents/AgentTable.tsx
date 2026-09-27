@@ -1,27 +1,27 @@
-import api from "@/src/services/Axios";
+// import api from "@/src/services/Axios";
 import { OgaAgent } from "../../types";
-import {useEffect} from "react";
+// import {useEffect} from "react";
 
 
 interface AgentTableProps {
   agents: OgaAgent[];
-  onSelectAgent: (id: string) => void;
+  onSelectAgent: (id: number) => void;
 }
 
 export default function AgentTable({ agents, onSelectAgent }: AgentTableProps) {
- useEffect(() => {
-   const getuserMetrics = async () => {
-     try {
-       const response = await api.get(
-         "/admin/all_agent_verification_by_status",
-       );
-       console.log("User verification:", response.data);
-     } catch (error) {
-       console.error("Error fetching user verification data:", error);
-     }
-   };
-   getuserMetrics();
- }, []);
+//  useEffect(() => {
+//    const getuserMetrics = async () => {
+//      try {
+//        const response = await api.get(
+//          "/admin/all_agent_verification_by_status",
+//        );
+//        console.log("User verification:", response.data);
+//      } catch (error) {
+//        console.error("Error fetching user verification data:", error);
+//      }
+//    };
+//    getuserMetrics();
+//  }, []);
 
   return (
     <div className="bg-white rounded-xl border border-emerald-950/5 overflow-hidden shadow-xs">

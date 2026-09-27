@@ -3,8 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export type DashboardTab = 'dashboard' | 'agents' | 'listings' | 'reports' | 'subscriptions' | 'settings';
-export type ModalActionType = 'ban' | 'reduce' | 'suspend' | 'reject' | 'remove' | 'extendSub';
+export type DashboardTab =
+  | "dashboard"
+  | "agents"
+  | "listings"
+  | "reports"
+  | "subscriptions"
+  | "settings";
+export type ModalActionType =
+  | "ban"
+  | "reduce"
+  | "suspend"
+  | "reject"
+  | "remove"
+  | "extendSub";
 
 export interface OgaStatCard {
   id: string;
@@ -12,13 +24,19 @@ export interface OgaStatCard {
   value: string;
   changeText?: string;
   isPositive?: boolean;
-  iconType: 'agents' | 'verified' | 'pending' | 'listings' | 'reports' | 'revenue';
+  iconType:
+    | "agents"
+    | "verified"
+    | "pending"
+    | "listings"
+    | "reports"
+    | "revenue";
 }
 
 export interface OgaAlert {
   id: string;
   text: string;
-  type: 'danger' | 'warning' | 'info';
+  type: "danger" | "warning" | "info";
   targetTab: DashboardTab;
   filter?: string;
 }
@@ -32,7 +50,7 @@ export interface OgaRecentActivity {
 
 export interface OgaAgent {
   data: {
-    id: string;
+    id: number;
     name: string;
     email: string;
     phone: string;
@@ -51,16 +69,16 @@ export interface OgaAgent {
 }
 
 export interface OgaListing {
-  id: string;
+  id: number;
   title: string;
   area: string;
   price: string; // e.g. "₦1.2M/Year" or "₦800,000/yr"
-  agentId: string;
+  agentId: number;
   agentName: string;
-  status: 'Verified' | 'Pending' | 'Removed';
+  status: "Verified" | "Pending" | "Removed";
   beds: number;
   baths: number;
-  rentStatus: 'Rented' | 'Available' | 'Removed' | 'Pending';
+  rentStatus: "Rented" | "Available" | "Removed" | "Pending";
   timeAgo: string;
   image: string;
   description: string;
@@ -84,14 +102,20 @@ export interface OgaReport {
   category: string;
   title?: string;
   email: string;
+  createdAt?: string;
+  reportedAgent?: {
+    email: string;
+    id: number | string;
+    name: string;
+  };
   area?: string;
   agentId: string;
   agentName: string;
   reason: string;
   date: string;
-  status: 'Open' | 'Reviewed' | 'Resolved';
+  status: "Open" | "Reviewed" | "Resolved";
   pastReportsCount: number;
-  severity: 'High' | 'Medium' | 'Low';
+  severity: "High" | "Medium" | "Low";
   description: string;
   relatedListingId?: string;
   relatedListingName?: string;
@@ -102,7 +126,7 @@ export interface OgaReport {
     reason: string;
     reportedby: string;
     date: string;
-    status: 'Resolved' | 'Reviewed' | 'Open';
+    status: "Resolved" | "Reviewed" | "Open";
     actionTaken: string;
   }>;
 }
@@ -111,18 +135,34 @@ export interface OgaSubscription {
   id: string;
   agentId: string;
   agentName: string;
-  plan: 'Premium' | 'Free';
+  plan: "Premium" | "Free";
   amount: string; // e.g. "₦ 50,000"
   startDate: string;
   endDate: string;
-  status: 'Active' | 'Expired' | 'Expiring soon';
+  status: "Active" | "Expired" | "Expiring soon";
+}
+
+export interface AgentSubscription {
+  id: number;
+  agentId: number;
+  planId: number;
+  startDate: string;
+  endDate: string;
+  status: string;
+  createdAt: string;
+  plan: {
+    id: number;
+    name: string;
+    price: string;
+    durationDays: number;
+  };
 }
 
 export interface OgaAdminUser {
   id: string;
   name: string;
   email: string;
-  role: 'Super Admin' | 'Moderator' | 'Admin';
+  role: "Super Admin" | "Moderator" | "Admin";
 }
 export interface ActionHistory {
   id: string;

@@ -3,7 +3,7 @@ import type { OgaAgent } from '../../types';
 import ModalShell from './ModalShell';
 
 interface SuspendAgentModalProps {
-    agent: OgaAgent | null;
+    agent: OgaAgent ;
     modalReasonInput: string;
     onReasonChange: (value: string) => void;
     onClose: () => void;
@@ -22,10 +22,10 @@ export default function SuspendAgentModal({
     modalReasonInput,
     onReasonChange,
     onClose,
-    onConfirm,
+    // onConfirm,
 }: SuspendAgentModalProps) {
     const [duration, setDuration] = useState('10');
-    const agentName = agent?.name ?? 'the agent';
+    const agentName = agent?.data?.name ?? 'the agent';
 
     return (
         <ModalShell
@@ -34,7 +34,7 @@ export default function SuspendAgentModal({
             onClose={onClose}
         >
             <form onSubmit={onConfirm} className="space-y-6">
-                <div className="grid gap-4 sm:grid-cols-[1fr_1.5fr]">
+                <div className="grid gap-4 sm:grid-cols-[1fr_1.5fr] mt-5">
                     <label className="flex flex-col gap-2">
                         <span className="text-sm font-semibold text-slate-800">Suspension Duration</span>
                         <select
@@ -73,7 +73,7 @@ export default function SuspendAgentModal({
                     </button>
                     <button
                         type="submit"
-                        className="inline-flex w-full items-center justify-center rounded-2xl bg-[#004d2c] px-4 py-3 text-sm font-semibold text-white shadow-sm shadow-emerald-700/10 transition hover:bg-[#00381e] sm:w-auto"
+                        className="inline-flex w-full items-center justify-center rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-sm shadow-emerald-700/10 transition hover:bg-[#00381e] sm:w-auto"
                     >
                         Suspend Agent
                     </button>

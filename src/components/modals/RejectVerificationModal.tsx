@@ -4,7 +4,7 @@ import type { OgaAgent } from '../../types';
 import ModalShell from './ModalShell';
 
 interface RejectVerificationModalProps {
-    agent: OgaAgent | null;
+    agent: OgaAgent;
     modalReasonInput: string;
     onReasonChange: (value: string) => void;
     onClose: () => void;
@@ -16,9 +16,9 @@ export default function RejectVerificationModal({
     modalReasonInput,
     onReasonChange,
     onClose,
-    onConfirm,
+    // onConfirm,
 }: RejectVerificationModalProps) {
-    const agentName = agent?.name ?? 'this agent';
+    const agentName = agent?.data?.name ?? 'this agent';
 
     return (
         <ModalShell
@@ -27,7 +27,7 @@ export default function RejectVerificationModal({
             onClose={onClose}
         >
             <form onSubmit={onConfirm} className="space-y-6">
-                <div className="space-y-2">
+                <div className="space-y-2 mt-5">
                     <label className="block text-sm font-semibold text-slate-800">Reason for verification rejection</label>
                     <textarea
                         value={modalReasonInput}

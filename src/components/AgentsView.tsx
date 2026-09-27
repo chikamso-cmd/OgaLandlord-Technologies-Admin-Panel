@@ -1,97 +1,28 @@
 ﻿import { useEffect, useState } from "react";
-import { OgaAgent, OgaListing } from "../types";
-import { initialAgents, initialListings } from "../data";
-import ActionModal from "./ActionModal";
+import { useNavigate } from "react-router-dom";
+import { OgaAgent } from "../types";
+import { initialAgents } from "../data";
 import AgentFilters from "./agents/AgentFilters";
 import AgentTable from "./agents/AgentTable";
-import AgentDetailHeader from "./agents/AgentDetailHeader";
-import AgentActionPanel from "./agents/AgentActionPanel";
-import AgentDetailBody from "./agents/AgentDetailBody";
 import useProperties from "../hooks/useProperties";
 import { AlertTriangle, Loader } from "lucide-react";
 
 export default function AgentsView() {
+  const navigate = useNavigate();
   const { data: fetchedAgents, isLoading, isError, error } = useProperties();
   const [agents, setAgents] = useState<OgaAgent[]>(initialAgents);
-  const [listings] = useState<OgaListing[]>(initialListings);
-  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [planFilter, setPlanFilter] = useState("all");
-  const [activeModal, setActiveModal] = useState<
-    "ban" | "reduce" | "suspend" | "reject" | null
-  >(null);
-  const [modalTargetId, setModalTargetId] = useState<string | null>(null);
-  const [modalReason, setModalReason] = useState("");
-  const [scoreReduction, setScoreReduction] = useState(10);
 
   useEffect(() => {
     if (fetchedAgents) setAgents(fetchedAgents);
   }, [fetchedAgents]);
 
-  const selectedAgent = agents.find((a) => a.data?.id === selectedAgentId);
-
   const resetFilters = () => {
     setSearchTerm("");
     setStatusFilter("all");
     setPlanFilter("all");
-  };
-
-  const openModal = (
-    type: "ban" | "reduce" | "suspend" | "reject",
-    agentId: string,
-  ) => {
-    setActiveModal(type);
-    setModalTargetId(agentId);
-    setModalReason("");
-    setScoreReduction(10);
-  };
-
-  const closeModal = () => {
-    setActiveModal(null);
-    setModalTargetId(null);
-  };
-
-  const confirmModal = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!activeModal || !modalTargetId) return;
-    setAgents((current) =>
-      current.map((agent) => {
-        if (agent.data?.id !== modalTargetId) return agent;
-        if (
-          activeModal === "ban" ||
-          activeModal === "suspend" ||
-          activeModal === "reject"
-        ) {
-          return {
-            ...agent,
-            data: {
-              ...agent.data,
-              verificationStatus: "Blocked",
-              ...(activeModal === "ban"
-                ? { trustScore: 0, activeListingsCount: 0 }
-                : {}),
-            },
-          };
-        }
-        return {
-          ...agent,
-          data: {
-            ...agent.data,
-            trustScore: Math.max(0, agent.data?.trustScore - scoreReduction),
-          },
-          responseTime: Math.max(
-            0,
-            agent.data?.responseTime - Math.round(scoreReduction / 2),
-          ),
-          clientSatisfaction: Math.max(
-            0,
-            agent.data?.clientSatisfaction - Math.round(scoreReduction / 2),
-          ),
-        };
-      }),
-    );
-    closeModal();
   };
 
   const filteredAgents = agents.filter((agent) => {
@@ -108,14 +39,10 @@ export default function AgentsView() {
     return matchesSearch && matchesStatus && matchesPlan;
   });
 
-  const agentListings = selectedAgent
-    ? listings.filter((l) => l.agentId === selectedAgent.data?.id)
-    : [];
-
   if (isLoading) {
     return (
       <div className="py-20 text-center font-bold flex items-center gap-3 justify-center text-emerald-800 mt-50 mb-50">
-       <Loader size={20} className="animate-spin" /> Loading agents...
+        <Loader size={20} className="animate-spin" /> Loading agents...
       </div>
     );
   }
@@ -124,56 +51,6 @@ export default function AgentsView() {
     return (
       <div className="py-20 text-center font-bold text-red-800 flex items-center gap-3 justify-center mt-50 mb-50">
         <AlertTriangle size={20} /> {error.message}
-      </div>
-    );
-  }
-
-  if (selectedAgent) {
-    return (
-      <div id="agent-detail-wrapper" className="space-y-6">
-        <AgentDetailHeader
-          agent={selectedAgent}
-          onBack={() => setSelectedAgentId(null)}
-        />
-        <AgentActionPanel
-          agent={selectedAgent}
-          onTriggerModal={openModal}
-          onApproveVerification={(agentId) =>
-            setAgents((current) =>
-              current.map((agent) =>
-                agent.data?.id === agentId
-                  ? {
-                      ...agent,
-                      data: {
-                        ...agent.data,
-                        verificationStatus: "Verified",
-                        trustScore: 90,
-                      },
-                    }
-                  : agent,
-              ),
-            )
-          }
-          onResetTrustScore={(agentId) =>
-            setAgents((current) =>
-              current.map((agent) =>
-                agent.data?.id === agentId
-                  ? {
-                      ...agent,
-                      data: {
-                        ...agent.data,
-                        trustScore: 95,
-                        responseTime: 95,
-                        transactionSuccess: 92,
-                        clientSatisfaction: 98,
-                      },
-                    }
-                  : agent,
-              ),
-            )
-          }
-        />
-        <AgentDetailBody agent={selectedAgent} listings={agentListings} />
       </div>
     );
   }
@@ -197,7 +74,12 @@ export default function AgentsView() {
         resetFilters={resetFilters}
       />
 
-      <AgentTable agents={filteredAgents} onSelectAgent={setSelectedAgentId} />
+      <AgentTable
+        agents={filteredAgents}
+        onSelectAgent={(agentId) =>
+          navigate(`/agents/${encodeURIComponent(agentId)}`)
+        }
+      />
 
       <div className="p-4 bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-t border-slate-100 flex items-center justify-between">
         <span>
@@ -218,20 +100,6 @@ export default function AgentsView() {
           </button>
         </div>
       </div>
-      <ActionModal
-        activeModal={activeModal}
-        modalTargetAgent={
-          agents.find((agent) => agent.data?.id === modalTargetId) ?? null
-        }
-        modalReasonInput={modalReason}
-        modalScoreReduction={scoreReduction}
-        modalExtendValue="3"
-        onReasonChange={setModalReason}
-        onScoreReductionChange={setScoreReduction}
-        onExtendValueChange={() => undefined}
-        onClose={closeModal}
-        onConfirm={confirmModal}
-      />
     </div>
   );
 }

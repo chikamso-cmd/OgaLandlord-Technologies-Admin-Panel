@@ -66,7 +66,7 @@ export default function Login({ onLogin }: LoginProps) {
         responseData?.access_token ||
         responseData?.token;
       if (accessToken) {
-        localStorage.setItem("data", res.data);
+        localStorage.setItem("token", accessToken);
       }
       onLogin?.();
       navigate("/dashboard");

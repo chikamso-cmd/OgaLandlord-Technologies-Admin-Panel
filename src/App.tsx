@@ -13,7 +13,9 @@ import SettingsView from "./components/SettingsView";
 import ProtectedRoute from "./Protectedroute/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import AgentDetailView from "./components/AgentDetailView";
 // import "react-toastify/dist/ReactToastify.css";
+// import { OgaAgent } from "./types";
 
 export default function App() {
   const navigate = useNavigate();
@@ -38,38 +40,38 @@ export default function App() {
 
   return (
     <>
-       
-        <QueryClientProvider client={queryClient}>
-      <Routes>
-        <Route path="/login" element={<Login onLogin={handleLogin} />} />
-        <Route element={<ProtectedRoute isAuthenticated={isLoggedIn} />}>
-          <Route
-            element={
-              <AppLayout
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                handleTriggerViewTab={handleTriggerViewTab}
-                handleLogout={handleLogout}
-                searchQuery={searchQuery}
-                handleGlobalSearchChange={setSearchQuery}
-                alerts={initialAlerts}
-                isMobileMenuOpen={isMobileMenuOpen}
-                setIsMobileMenuOpen={setIsMobileMenuOpen}
-                toastMessage={null}
-              />
-            }
-          >
-            <Route path="/" element={<DashboardView />} />
-            <Route path="/dashboard" element={<DashboardView />} />
-            <Route path="/agents" element={<AgentsView />} />
-            <Route path="/listings" element={<ListingsView />} />
-            <Route path="/reports" element={<ReportsView />} />
-            <Route path="/subscriptions" element={<SubscriptionsView />} />
-            <Route path="/settings" element={<SettingsView />} />
+      <QueryClientProvider client={queryClient}>
+        <Routes>
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route element={<ProtectedRoute isAuthenticated={isLoggedIn} />}>
+            <Route
+              element={
+                <AppLayout
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                  handleTriggerViewTab={handleTriggerViewTab}
+                  handleLogout={handleLogout}
+                  searchQuery={searchQuery}
+                  handleGlobalSearchChange={setSearchQuery}
+                  alerts={initialAlerts}
+                  isMobileMenuOpen={isMobileMenuOpen}
+                  setIsMobileMenuOpen={setIsMobileMenuOpen}
+                  toastMessage={null}
+                />
+              }
+            >
+              <Route path="/" element={<DashboardView />} />
+              <Route path="/dashboard" element={<DashboardView />} />
+              <Route path="/agents" element={<AgentsView />} />
+              <Route path="/agents/:agentId" element={<AgentDetailView />} />
+              <Route path="/listings" element={<ListingsView />} />
+              <Route path="/reports" element={<ReportsView />} />
+              <Route path="/subscriptions" element={<SubscriptionsView />} />
+              <Route path="/settings" element={<SettingsView />} />
+            </Route>
           </Route>
-        </Route>
-      </Routes>
-        </QueryClientProvider>
+        </Routes>
+      </QueryClientProvider>
       <ToastContainer autoClose={4000} position="top-right" />
     </>
   );

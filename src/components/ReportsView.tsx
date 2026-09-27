@@ -1,9 +1,4 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -17,17 +12,26 @@ import {
   Flag,
   MessageSquare,
   Eye,
+  AlertTriangle,
+  Loader,
 } from "lucide-react";
 import { OgaReport, OgaAgent, OgaListing } from "../types";
 import { initialAgents, initialListings, initialReports } from "../data";
 import ReportFilters from "./reports/ReportFilters";
 import { actionHistory } from "../data";
 import ActionModal from "./ActionModal";
+import { useReports } from "../hooks/useReports";
+import { useReportById } from "../hooks/useReportById";
+// import { ReportData } from "../services/Reportapi";
+
+type ReportAgent = OgaAgent["data"];
 
 export default function ReportsView() {
   const navigate = useNavigate();
   const [reports, setReports] = useState<OgaReport[]>(initialReports);
-  const [agents, setAgents] = useState<OgaAgent[]>(initialAgents);
+  const [agents, setAgents] = useState<ReportAgent[]>(
+    initialAgents as unknown as ReportAgent[],
+  );
   const [listings] = useState<OgaListing[]>(initialListings);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -40,6 +44,17 @@ export default function ReportsView() {
       "System: Secondary audit triggered due to past reports threshold (5)",
     ],
   });
+  const { data: report, isLoading, isError, error } = useReports();
+  const {
+    data: selectedReportData,
+    isFetching: isReportDetailsLoading,
+    error: reportDetailsError,
+  } = useReportById(selectedReportId);
+
+  useEffect(() => {
+    if (report) setReports(report);
+  }, [report]);
+
   const [activeModal, setActiveModal] = useState<
     "ban" | "reduce" | "suspend" | null
   >(null);
@@ -78,19 +93,22 @@ export default function ReportsView() {
   };
 
   // Find selected report
-  const selectedReport = reports.find((r) => r.id === selectedReportId);
+  const selectedReport =
+    selectedReportData?.report ??
+    reports.find((r) => r.id === selectedReportId);
 
   // Filter reports
-  const filteredReports = reports.filter((r) => {
+  const filteredReports = reports?.filter((report) => {
     // search parameters
     const matchesSearch =
-      r.reporter?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.agentName.toLowerCase().includes(searchTerm.toLowerCase());
+      report.reporter.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.agentName.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === "all" || r.status === statusFilter;
+    const matchesStatus =
+      statusFilter === "all" || report.status === statusFilter;
 
     const matchesSeverity =
-      severityFilter === "all" || r.severity === severityFilter;
+      severityFilter === "all" || report.severity === severityFilter;
 
     return matchesSearch && matchesStatus && matchesSeverity;
   });
@@ -110,8 +128,26 @@ export default function ReportsView() {
     setInternalNote("");
   };
 
+  if (isLoading) {
+    return (
+      <div className="py-20 text-center font-bold flex items-center gap-3 justify-center text-emerald-800 mt-50 mb-50">
+        <Loader size={20} className="animate-spin" /> Loading reports...
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="py-20 text-center font-bold text-red-800 flex items-center gap-3 justify-center mt-50 mb-50">
+        <AlertTriangle size={20} /> {error.message}
+      </div>
+    );
+  }
+
   if (selectedReport) {
-    const relatedAgent = agents.find((a) => a.id === selectedReport.agentId);
+    const relatedAgent = agents.find(
+      (agent) => agent.id === String(selectedReport.reportedAgent?.id),
+    );
     const relatedListing = listings.find(
       (l) => l.id === selectedReport.relatedListingId,
     );
@@ -127,6 +163,18 @@ export default function ReportsView() {
           <ArrowLeft size={16} />
           <span>View Report Details</span>
         </button>
+
+        {isReportDetailsLoading && !selectedReportData && (
+          <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white p-3 text-xs font-semibold text-emerald-800">
+            <Loader size={15} className="animate-spin" /> Loading full report
+            details...
+          </div>
+        )}
+        {reportDetailsError && (
+          <div className="rounded-lg border border-red-100 bg-red-50 p-3 text-xs font-semibold text-red-700">
+            Could not load full report details: {reportDetailsError.message}
+          </div>
+        )}
 
         {/* Action Header Card */}
         <div className="bg-white p-5 rounded-xl border border-emerald-950/5 flex flex-col gap-4 shadow-xs">
@@ -169,7 +217,7 @@ export default function ReportsView() {
                   Submitted
                 </span>
                 <p className="font-semibold text-slate-700 text-[10px]">
-                  {selectedReport.date}
+                  {selectedReport.createdAt || selectedReport.date}
                 </p>
                 <span className="text-[10px] text-slate-400"> 2:34 PM</span>
               </div>
@@ -215,7 +263,7 @@ export default function ReportsView() {
                   Ago
                 </span>
                 <p className="font-semibold text-[#004d2c] text-[10px]">
-                  <span>{selectedReport.reporter}</span>
+                  <span>{selectedReport.createdAt || selectedReport.date}</span>
                 </p>
                 {/* <span className="text-[10px] text-slate-400">{selectedReport.email}</span> */}
               </div>
@@ -239,7 +287,7 @@ export default function ReportsView() {
                   <MessageSquare size={14} /> Complaint Description
                 </span>
                 <div className="p-4 bg-gray-50/50 rounded-xl border border-slate-100/40 text-[10px] text-slate-700 font-medium leading-relaxed whitespace-pre-line">
-                  {selectedReport.description}
+                  {selectedReport.reason}
                 </div>
               </div>
             </div>
@@ -369,75 +417,114 @@ export default function ReportsView() {
                 )}
               </div>
             </div>
+
+            <div className="space-y-4 overflow-hidden rounded-xl border border-emerald-950/5 bg-white p-5">
+              <h4 className="text-xs font-extrabold tracking-wider text-slate-800">
+                Similar Reports by This Reporter
+              </h4>
+              {selectedReportData?.similarReports.length ? (
+                <div className="space-y-3">
+                  {selectedReportData.similarReports.map(
+                    (similarReport, index) => (
+                      <div
+                        key={`${similarReport.id}-${index}`}
+                        className="rounded-lg border border-slate-100 bg-slate-50 p-3"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="text-[10px] font-bold uppercase text-emerald-800">
+                            Report #{similarReport.id} ·{" "}
+                            {similarReport.category}
+                          </span>
+                          <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[9px] font-semibold text-slate-600">
+                            {similarReport.status}
+                          </span>
+                        </div>
+                        <p className="mt-2 text-xs font-semibold text-slate-800">
+                          {similarReport.reason}
+                        </p>
+                        <p className="mt-1 text-[10px] text-slate-500">
+                          Agent: {similarReport.agentName} ·{" "}
+                          {similarReport.date}
+                        </p>
+                      </div>
+                    ),
+                  )}
+                </div>
+              ) : (
+                <p className="py-3 text-center text-xs text-slate-400">
+                  {selectedReportData
+                    ? "No similar reports were returned for this reporter."
+                    : "Similar reports will appear when report details finish loading."}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Right sidebar quick action panel and internal administrative note board */}
           <div className="lg:col-span-4 space-y-6">
             {/* Target Reported Agent Box summary */}
-            {relatedAgent && (
+            {selectedReport.reportedAgent && (
               <div className="bg-white p-5 rounded-xl border border-[#e2fef4] bg-red-50/10 space-y-4">
                 <h1 className=" text-xs font-bold mb-2 ">
                   Reported Agent Details
                 </h1>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-slate-100 border border-slate-200 rounded-full overflow-hidden flex-shrink-0">
-                    <img
-                      src={relatedAgent.avatar}
-                      alt={relatedAgent.name}
-                      className="w-[100%] h-full object-cover"
-                    />
+                  <div className="w-12 h-12 bg-slate-100 border border-slate-200 rounded-full flex items-center justify-center flex-shrink-0">
+                    <User size={20} className="text-slate-400" />
                   </div>
                   <div>
                     <h5 className="text-xs font-extrabold text-slate-800 truncate leading-tight">
-                      {relatedAgent.name}
+                      {selectedReport.reportedAgent.name}
                     </h5>
                     <h5 className="text-[10px] font-medium text-slate-800 truncate leading-tight">
-                      {relatedAgent.id}
+                      {selectedReport.reportedAgent.id}
                     </h5>
                     <h5 className="text-[10px] font-medium text-slate-800 truncate leading-tight">
-                      {relatedAgent.phone}
+                      {selectedReport.reportedAgent.email}
                     </h5>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
-                  <button
-                    disabled
-                    className="text-[10px] font-medium text-slate-400 mt-1  bg-gray-100 py-2 px-2 rounded-lg text-left flex flex-col"
-                  >
-                    Trust score{" "}
-                    <span className="text-red-600 font-bold">
-                      {relatedAgent.trustScore}
-                    </span>
-                  </button>
-
-                  <div className=" flex gap-2 w-full">
+                {relatedAgent && (
+                  <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
                     <button
                       disabled
-                      className="text-[10px] flex-1 font-medium text-slate-400 mt-1  bg-gray-100 py-2 px-2 rounded-lg text-left flex flex-col"
+                      className="text-[10px] font-medium text-slate-400 mt-1  bg-gray-100 py-2 px-2 rounded-lg text-left flex flex-col"
                     >
-                      Reports{" "}
-                      <p className="text-red-500 font-bold">
-                        {selectedReport.pastReportsCount}
-                      </p>
-                    </button>
-                    <button
-                      disabled
-                      className="text-[10px] flex-1 font-medium text-slate-400 mt-1  bg-gray-100 py-2 px-2 rounded-lg text-left flex flex-col"
-                    >
-                      Active Listings{" "}
-                      <span className="text-slate-600 font-bold">
-                        {relatedAgent.activeListingsCount}
+                      Trust score{" "}
+                      <span className="text-red-600 font-bold">
+                        {relatedAgent.trustScore}
                       </span>
                     </button>
+
+                    <div className=" flex gap-2 w-full">
+                      <button
+                        disabled
+                        className="text-[10px] flex-1 font-medium text-slate-400 mt-1  bg-gray-100 py-2 px-2 rounded-lg text-left flex flex-col"
+                      >
+                        Reports{" "}
+                        <p className="text-red-500 font-bold">
+                          {selectedReport.pastReportsCount}
+                        </p>
+                      </button>
+                      <button
+                        disabled
+                        className="text-[10px] flex-1 font-medium text-slate-400 mt-1  bg-gray-100 py-2 px-2 rounded-lg text-left flex flex-col"
+                      >
+                        Active Listings{" "}
+                        <span className="text-slate-600 font-bold">
+                          {relatedAgent.activeListingsCount}
+                        </span>
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => navigate("/agents")}
+                      className="w-full py-2 bg-slate-100 hover:bg-[#004d2c]/5 text-[#004d2c] text-xs font-bold rounded-lg transition-colors cursor-pointer text-center"
+                    >
+                      View Full Agent Profile
+                    </button>
                   </div>
-                  <button
-                    onClick={() => navigate("/agents")}
-                    className="w-full py-2 bg-slate-100 hover:bg-[#004d2c]/5 text-[#004d2c] text-xs font-bold rounded-lg transition-colors cursor-pointer text-center"
-                  >
-                    View Full Agent Profile
-                  </button>
-                </div>
+                )}
               </div>
             )}
 
@@ -562,7 +649,9 @@ export default function ReportsView() {
         <ActionModal
           activeModal={activeModal}
           modalTargetAgent={
-            agents.find((agent) => agent.id === modalTargetId) ?? null
+            agents.find((agent) => agent.id === modalTargetId)
+              ? { data: agents.find((agent) => agent.id === modalTargetId)! }
+              : null
           }
           modalReasonInput={modalReason}
           modalScoreReduction={scoreReduction}
@@ -612,7 +701,7 @@ export default function ReportsView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 text-xs">
-              {filteredReports.length === 0 ? (
+              {filteredReports?.length === 0 ? (
                 <tr>
                   <td
                     colSpan={7}
@@ -622,7 +711,7 @@ export default function ReportsView() {
                   </td>
                 </tr>
               ) : (
-                filteredReports.map((report) => (
+                filteredReports?.map((report) => (
                   <tr
                     key={report.id}
                     className="hover:bg-[#f4fcf8]/50 transition-all font-medium"
@@ -694,7 +783,7 @@ export default function ReportsView() {
 
         <div className="p-4 bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-t border-slate-100 flex items-center justify-between">
           <span>
-            Showing {filteredReports.length} of {reports.length} reports
+            Showing {filteredReports?.length} of {reports?.length} reports
           </span>
           <div className="flex gap-1.5">
             <button className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 cursor-pointer">

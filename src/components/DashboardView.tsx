@@ -15,21 +15,60 @@ import {
   Flag,
   Eye,
 } from "lucide-react";
-import { OgaStatCard, OgaAlert, OgaRecentActivity } from "../types";
+import { OgaAlert } from "../types";
 import { Link, useNavigate } from "react-router-dom";
 import {
   initialAlerts,
   initialRecentActivities,
   initialStatCards,
 } from "../data";
+import { useDashboardStats } from "../hooks/useDashboardStats";
+import { useReports } from "../hooks/useReports";
 
 export default function DashboardView() {
   const navigate = useNavigate();
-  const [statCards] = useState<OgaStatCard[]>(initialStatCards);
+  const { data: dashboardStats } = useDashboardStats();
+  const { data: reports = [] } = useReports();
+  const today = new Date().toDateString();
+  const reportsToday = reports.filter((report) => {
+    const reportDate = new Date(report.createdAt || report.date);
+    return (
+      !Number.isNaN(reportDate.getTime()) && reportDate.toDateString() === today
+    );
+  }).length;
+  const reportActivities = reports.slice(0, 4).map((report) => {
+    const reportDate = new Date(report.createdAt || report.date);
+
+    return {
+      id: `report-${report.id}`,
+      text: `Report filed: ${report.reason}`,
+      agent: report.agentName,
+      time: Number.isNaN(reportDate.getTime())
+        ? report.date
+        : reportDate.toLocaleString(),
+    };
+  });
+  const recentActivities = [
+    ...reportActivities,
+    ...initialRecentActivities.filter(
+      (activity) => !activity.text.toLowerCase().includes("report filed"),
+    ),
+  ].slice(0, 5);
+  const statCards = initialStatCards.map((card) => {
+    const values = {
+      "1": dashboardStats?.totalAgents,
+      "2": dashboardStats?.verifiedAgents,
+      "3": dashboardStats?.pendingVerification,
+      "4": dashboardStats?.activeListings,
+      "5": reportsToday,
+    };
+    const value = values[card.id as keyof typeof values];
+
+    return value === undefined
+      ? card
+      : { ...card, value: value.toLocaleString() };
+  });
   const [alerts] = useState<OgaAlert[]>(initialAlerts);
-  const [recentActivities] = useState<OgaRecentActivity[]>(
-    initialRecentActivities,
-  );
 
   // Helper to map icons
   const renderIcon = (type: string) => {
@@ -80,7 +119,6 @@ export default function DashboardView() {
         <p className="text-xs text-slate-500">
           Overview of platform activity and pending actions
         </p>
-        
       </div>
 
       {/* 6 Grid layout KPI Stats Cards */}
