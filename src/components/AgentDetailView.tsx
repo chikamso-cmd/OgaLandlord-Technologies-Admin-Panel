@@ -122,7 +122,7 @@ export default function AgentDetailView() {
                     ...item,
                     data: {
                       ...item.data,
-                      verificationStatus: "Verified",
+                      verificationStatus: agent?.data?.verificationStatus,
                       trustScore: 90,
                     },
                   }
@@ -142,11 +142,11 @@ export default function AgentDetailView() {
         activeModal={activeModal}
         modalTargetAgent={agent}
         modalReasonInput={modalReason}
-        modalScoreReduction={scoreReduction}
-        modalExtendValue="3"
+        // modalScoreReduction={scoreReduction}
+        // modalExtendValue="3"
         onReasonChange={setModalReason}
-        onScoreReductionChange={setScoreReduction}
-        onExtendValueChange={() => undefined}
+        // onScoreReductionChange={setScoreReduction}
+        // onExtendValueChange={() => undefined}
         onClose={closeModal}
         // onConfirm={confirmModal}
       />

@@ -36,7 +36,7 @@ export default function ListingFilters({
                     className="bg-slate-50 text-slate-700 px-3 py-1.5 text-xs border border-slate-200 outline-none rounded-lg focus:border-[#004d2c] font-semibold w-full md:w-36"
                 >
                     <option value="all">All Statuses</option>
-                    <option value="Verified">Verified Only</option>
+                    <option value="published">Published Only</option>
                     <option value="Pending">Pending Only</option>
                     <option value="Removed">Removed Only</option>
                 </select>

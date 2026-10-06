@@ -4,29 +4,76 @@
  */
 
 import { useEffect, useState } from "react";
-import type { FormEvent } from "react";
+import type { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Image as ImageIcon, Copy, Loader, AlertTriangle } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import {
+  ArrowLeft,
+  Image as ImageIcon,
+  Copy,
+  Loader,
+  AlertTriangle,
+} from "lucide-react";
 import { OgaListing, OgaAgent } from "../types";
 import { initialAgents, initialListings } from "../data";
 import ListingFilters from "./listings/ListingFilters";
 import ActionModal from "./ActionModal";
 import useListings from "../hooks/useListings";
+import {
+  formatNaira,
+  updateListingStatus,
+  type ListingStatusUpdate,
+} from "../services/Listingsapi";
+
+function ListingInfoCard({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="bg-white p-5 rounded-xl border border-emerald-950/5 space-y-2">
+      <h4 className="text-[10px] font-extrabold text-slate-800 uppercase tracking-widest border-b border-slate-50 pb-2">
+        {title}
+      </h4>
+      <div>{children}</div>
+    </div>
+  );
+}
+
+function InfoRow({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | number | null;
+}) {
+  const isEmpty = value === null || value === undefined || value === "";
+  return (
+    <div className="flex justify-between gap-4 text-[10px] py-1.5 border-b border-slate-50 last:border-b-0">
+      <span className="text-slate-400 font-medium shrink-0">{label}</span>
+      <span
+        className={`text-right wrap-break-word capitalize ${
+          isEmpty ? "text-slate-300 italic" : "text-slate-700 font-bold"
+        }`}
+      >
+        {isEmpty ? "Not provided" : value}
+      </span>
+    </div>
+  );
+}
 
 export default function ListingsView() {
   const navigate = useNavigate();
-  const [listings, setListings] = useState<OgaListing[]>(initialListings);
-  const {
-    data: fetchedListings,
-    isLoading,
-    isError,
-    error,
-  } = useListings();
+  const { data: fetchedListings, isLoading, isError, error } = useListings();
+  const listings: OgaListing[] = fetchedListings ?? initialListings;
   const [agents] = useState<OgaAgent[]>(initialAgents);
   const location = useLocation();
-  const routeState = location.state as { selectedListingId?: string } | null;
-  const [selectedListingId, setSelectedListingId] = useState<string | null>(
+  const routeState = location.state as { selectedListingId?: number } | null;
+  const [selectedListingId, setSelectedListingId] = useState<number | null>(
     routeState?.selectedListingId ?? null,
   );
   const [searchTerm, setSearchTerm] = useState("");
@@ -34,10 +81,35 @@ export default function ListingsView() {
   const [areaFilter, setAreaFilter] = useState("all");
   const [activeModal, setActiveModal] = useState<"remove" | null>(null);
   const [modalReason, setModalReason] = useState("");
+  const [pendingAction, setPendingAction] = useState<
+    "approve" | "remove" | "rented" | null
+  >(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (fetchedListings) setListings(fetchedListings);
-  }, [fetchedListings]);
+  // Write the status the backend returned into the cached listings so every
+  // view reading ["listings"] updates immediately.
+  const applyStatusUpdate = (
+    propertyID: number,
+    update: ListingStatusUpdate,
+  ) => {
+    queryClient.setQueryData<OgaListing[]>(["listings"], (current) =>
+      current?.map((listing) =>
+        listing.id === propertyID
+          ? {
+              ...listing,
+              status: update.status,
+              rawStatus: update.rawStatus,
+              rentStatus:
+                update.status === "Removed"
+                  ? "Removed"
+                  : update.status === "rented"
+                    ? "rented"
+                    : listing.rentStatus,
+            }
+          : listing,
+      ),
+    );
+  };
 
   useEffect(() => {
     if (routeState?.selectedListingId) {
@@ -45,22 +117,8 @@ export default function ListingsView() {
     }
   }, [routeState?.selectedListingId]);
 
-  const handleSelectListing = (id: string | null) => {
+  const handleSelectListing = (id: number | null) => {
     setSelectedListingId(id);
-  };
-
-  const confirmRemove = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!selectedListingId) return;
-    setListings((current) =>
-      current.map((listing) =>
-        listing.id === selectedListingId
-          ? { ...listing, status: "Removed", rentStatus: "Removed" }
-          : listing,
-      ),
-    );
-    setActiveModal(null);
-    setModalReason("");
   };
 
   // Find selected listing
@@ -90,6 +148,40 @@ export default function ListingsView() {
 
     return matchesSearch && matchesStatus && matchesArea;
   });
+  const handleStatusChange = async (
+    propertyID: number,
+    action: "approve" | "remove" | "rented",
+  ) => {
+    setPendingAction(action);
+    try {
+      const update = await updateListingStatus(
+        propertyID,
+        action === "approve"
+          ? "published"
+          : action === "rented"
+            ? "rented"
+            : "removed",
+      );
+      applyStatusUpdate(propertyID, update);
+      await queryClient.invalidateQueries({ queryKey: ["listings"] });
+      toast.success(
+        update.message ||
+          (action === "approve"
+            ? "Listing approved successfully"
+            : action === "rented"
+              ? "Listing set as rented successfully"
+              : "Listing removed successfully"),
+      );
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        `Failed to ${action} listing.`;
+      toast.error(message);
+    } finally {
+      setPendingAction(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -116,7 +208,7 @@ export default function ListingsView() {
           className="flex items-center gap-2 text-slate-600 hover:text-[#004d2c] font-bold text-xs select-none uppercase tracking-wider cursor-pointer"
         >
           <ArrowLeft size={16} />
-          <span>Central Park Estate Lekki Phase 1, Lagos City</span>
+          <span>{selectedListing.area}</span>
         </button>
 
         {/* Action Header bar (Approve / Remove layout control) */}
@@ -131,35 +223,61 @@ export default function ListingsView() {
           </div>
 
           <div className="flex gap-2.5">
-            {selectedListing.status !== "Verified" && (
+            {selectedListing.status !== "published" && (
               <button
                 onClick={() =>
-                  setListings((current) =>
-                    current.map((listing) =>
-                      listing.id === selectedListing.id
-                        ? {
-                            ...listing,
-                            status: "Verified",
-                            rentStatus: "Available",
-                          }
-                        : listing,
-                    ),
-                  )
+                  handleStatusChange(selectedListing.id, "approve")
                 }
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-lg flex items-center gap-1.5 cursor-pointer shadow-sm shadow-emerald-700/15"
+                disabled={pendingAction !== null}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-xs font-medium rounded-lg flex items-center gap-1.5 cursor-pointer shadow-sm shadow-emerald-700/15"
               >
                 {/* <CheckCheck size={14} /> */}
-                <span>Approve Listing</span>
+                {pendingAction === "approve" && (
+                  <Loader size={14} className="animate-spin" />
+                )}
+                <span>
+                  {pendingAction === "approve"
+                    ? "Approving..."
+                    : "Approve Listing"}
+                </span>
               </button>
             )}
 
-            <button
-              onClick={() => setActiveModal("remove")}
-              className="px-4 py-2 bg-red-50  text-red-600 border border-red-200 text-xs font-medium rounded-lg flex items-center gap-1.5 cursor-pointer"
-            >
-              {/* <Trash2 size={14} /> */}
-              <span>Remove Listing</span>
-            </button>
+            {selectedListing.status !== "Removed" && (
+              <button
+                onClick={() => handleStatusChange(selectedListing.id, "remove")}
+                disabled={pendingAction !== null}
+                className="px-4 py-2 bg-red-50  text-red-600 border border-red-200 disabled:opacity-60 disabled:cursor-not-allowed text-xs font-medium rounded-lg flex items-center gap-1.5 cursor-pointer"
+              >
+                {/* <Trash2 size={14} /> */}
+                {pendingAction === "remove" && (
+                  <Loader size={14} className="animate-spin" />
+                )}
+                <span>
+                  {pendingAction === "remove"
+                    ? "Removing..."
+                    : "Remove Listing"}
+                </span>
+              </button>
+            )}
+            {/* rented status */}
+            {selectedListing.status !== "rented" && (
+              <button
+                onClick={() => handleStatusChange(selectedListing.id, "rented")}
+                disabled={pendingAction !== null}
+                className="px-4 py-2 bg-sky-50 text-sky-700 border border-sky-200 disabled:opacity-60 disabled:cursor-not-allowed text-xs font-medium rounded-lg flex items-center gap-1.5 cursor-pointer"
+              >
+                {/* <Trash2 size={14} /> */}
+                {pendingAction === "rented" && (
+                  <Loader size={14} className="animate-spin" />
+                )}
+                <span>
+                  {pendingAction === "rented"
+                    ? "Setting as Rented..."
+                    : "Set as Rented"}
+                </span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -174,11 +292,11 @@ export default function ListingsView() {
               <div className="bg-white p-3 w-40 rounded-lg absolute z-50 top-12 left-6 shadow-xs ">
                 <span
                   className={`px-2.5 py-1  text-[10px] font-medium rounded-md shadow-md tracking-wider leading-none ${
-                    selectedListing.status === "Verified"
-                      ? "bg-emerald-500 text-white"
-                      : selectedListing.status === "Pending"
-                        ? "bg-amber-500 text-white"
-                        : "bg-red-500 text-white"
+                    selectedListing.status === "published" ? "bg-green-50 text-green-700"
+                    : selectedListing.status === "Pending" ? "bg-amber-50 text-amber-700"
+                    : selectedListing.status === "Removed" ? "bg-red-50 text-red-700"
+                    : selectedListing.status === "rented" ? "bg-sky-50 text-sky-700"
+                    : "bg-gray-50 text-gray-700"
                   }`}
                 >
                   {selectedListing.status}
@@ -199,25 +317,39 @@ export default function ListingsView() {
                 </div>
 
                 <button
-                  onClick={() => navigate("/agents")}
+                  onClick={() =>
+                    navigate(
+                      selectedListing.agentId
+                        ? `/agents/${selectedListing.agentId}`
+                        : "/agents",
+                    )
+                  }
                   className="w-full py-2 bg-[#004d2c] hover:bg-[#00381e] text-white text-[10px] font-bold rounded-lg transition-colors cursor-pointer text-center block shadow-xs"
                 >
                   View Agent Profile
                 </button>
               </div>
-              <img
-                src={selectedListing.image}
-                alt="Property main view"
-                className="w-full h-full object-cover"
-              />
+              {selectedListing.image ? (
+                <img
+                  src={selectedListing.image}
+                  alt="Property main view"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-slate-300">
+                  <ImageIcon size={48} />
+                </div>
+              )}
               <div className="absolute top-4 left-4 flex gap-2">
                 <span
                   className={`px-2.5 py-1 text-[10px] font-extrabold rounded-md shadow-md uppercase tracking-wider leading-none ${
-                    selectedListing.status === "Verified"
+                    selectedListing.status === "published"
                       ? "bg-emerald-500 text-white"
                       : selectedListing.status === "Pending"
                         ? "bg-amber-500 text-white"
-                        : "bg-red-500 text-white"
+                        : selectedListing.status === "rented"
+                          ? "bg-sky-500 text-white"
+                          : "bg-red-500 text-white"
                   }`}
                 >
                   {selectedListing.status}
@@ -274,34 +406,29 @@ export default function ListingsView() {
                 <span> Gallery </span>
               </h4>
 
-              <div className="grid grid-cols-3 gap-3">
-                <div className="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
-                  <img
-                    src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=300&q=80"
-                    alt="Int Room 1"
-                    className="w-full h-full object-cover rounded-lg"
-                  />
+              {(selectedListing.images ?? []).length === 0 ? (
+                <div className="p-8 text-center text-slate-400 text-[10px] border border-dashed border-slate-200 rounded-lg">
+                  No photos uploaded for this listing.
                 </div>
-                <div className="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
-                  <img
-                    src="https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=300&q=80"
-                    alt="Int Room 2"
-                    className="w-full h-full object-cover rounded-lg"
-                  />
+              ) : (
+                <div className="grid grid-cols-3 gap-3">
+                  {(selectedListing.images ?? []).map((url, index) => (
+                    <a
+                      key={url}
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200 block"
+                    >
+                      <img
+                        src={url}
+                        alt={`${selectedListing.title} photo ${index + 1}`}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    </a>
+                  ))}
                 </div>
-                <div className="aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200 relative">
-                  <img
-                    src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=300&q=80"
-                    alt="Int Room 3"
-                    className="w-full h-full object-cover opacity-60 blur-xxs rounded-lg"
-                  />
-                  <div className="absolute inset-0 bg-black/45 flex items-center justify-center rounded-lg">
-                    <span className="text-[11px] font-extrabold text-white uppercase tracking-wider text-center px-1">
-                      + 4 photos
-                    </span>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -372,6 +499,165 @@ export default function ListingsView() {
                 </p>
               </div>
             </div>
+
+            <ListingInfoCard title="Property Details">
+              <InfoRow
+                label="Property Type"
+                value={selectedListing.propertyType}
+              />
+              <InfoRow label="Address" value={selectedListing.address} />
+              <InfoRow label="City" value={selectedListing.city} />
+              <InfoRow label="State" value={selectedListing.state} />
+              <InfoRow label="Country" value={selectedListing.country} />
+              <InfoRow
+                label="Coordinates"
+                value={
+                  selectedListing.latitude != null &&
+                  selectedListing.longitude != null
+                    ? `${selectedListing.latitude}, ${selectedListing.longitude}`
+                    : null
+                }
+              />
+              <InfoRow label="Bedrooms" value={selectedListing.beds} />
+              <InfoRow label="Bathrooms" value={selectedListing.baths} />
+              <InfoRow
+                label="Availability"
+                value={selectedListing.rentStatus}
+              />
+              <InfoRow
+                label="Status"
+                value={selectedListing.rawStatus?.replace(/_/g, " ")}
+              />
+              <InfoRow
+                label="Date Posted"
+                value={
+                  selectedListing.createdAt
+                    ? new Date(selectedListing.createdAt).toLocaleString()
+                    : null
+                }
+              />
+            </ListingInfoCard>
+
+            {(selectedListing.units ?? []).length > 1 && (
+              <ListingInfoCard
+                title={`Units (${selectedListing.units?.length})`}
+              >
+                {selectedListing.units?.map((unit, index) => (
+                  <div
+                    key={unit.id}
+                    className="py-2 border-b border-slate-50 last:border-b-0 text-[10px]"
+                  >
+                    <div className="flex justify-between font-bold text-slate-700">
+                      <span>{unit.unitNumber ?? `Unit ${index + 1}`}</span>
+                      <span>{formatNaira(unit.rentPrice)}/yr</span>
+                    </div>
+                    <div className="flex justify-between text-slate-400 mt-0.5">
+                      <span>
+                        {unit.bedrooms} Beds • {unit.bathrooms} Baths
+                      </span>
+                      <span>
+                        {unit.isAvailable ? "Available" : "Not available"}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </ListingInfoCard>
+            )}
+
+            {selectedListing.agent && (
+              <ListingInfoCard title="Listed By">
+                <div className="flex items-center gap-3 pb-2">
+                  {selectedListing.agent.imageUrl ? (
+                    <img
+                      src={selectedListing.agent.imageUrl}
+                      alt={selectedListing.agent.name}
+                      className="w-10 h-10 rounded-full object-cover bg-slate-100"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-800 flex items-center justify-center text-sm font-bold">
+                      {selectedListing.agent.name.charAt(0)}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-800 truncate">
+                      {selectedListing.agent.name}
+                    </p>
+                    <p className="text-[10px] text-slate-400 truncate">
+                      {selectedListing.agent.email ?? "No email"}
+                    </p>
+                  </div>
+                </div>
+                <InfoRow
+                  label="Username"
+                  value={selectedListing.agent.username}
+                />
+                <InfoRow
+                  label="Trust Score"
+                  value={`${selectedListing.agent.trustScore}/100`}
+                />
+                <InfoRow
+                  label="Verification"
+                  value={selectedListing.agent.verificationStatus?.replace(
+                    /_/g,
+                    " ",
+                  )}
+                />
+              </ListingInfoCard>
+            )}
+
+            <ListingInfoCard title="Engagement">
+              <InfoRow label="Views" value={selectedListing.viewsCount ?? 0} />
+              <InfoRow
+                label="Favorites"
+                value={selectedListing.favoritesCount ?? 0}
+              />
+              <InfoRow
+                label="Comments"
+                value={selectedListing.commentsCount ?? 0}
+              />
+              <InfoRow
+                label="Reports"
+                value={selectedListing.reportsCount ?? 0}
+              />
+              <InfoRow
+                label="Average Rating"
+                value={
+                  selectedListing.averageRating != null
+                    ? `★ ${selectedListing.averageRating.toFixed(1)} (${selectedListing.ratings?.length})`
+                    : null
+                }
+              />
+              {(selectedListing.ratings ?? []).length > 0 && (
+                <div className="pt-2 space-y-2">
+                  {selectedListing.ratings?.map((rating) => (
+                    <div
+                      key={rating.id}
+                      className="bg-slate-50 rounded-lg p-2 text-[10px]"
+                    >
+                      <div className="flex justify-between">
+                        <span className="text-amber-500 font-bold">
+                          {"★".repeat(rating.stars)}
+                          <span className="text-slate-300">
+                            {"★".repeat(Math.max(0, 5 - rating.stars))}
+                          </span>
+                        </span>
+                        <span className="text-slate-400">
+                          {rating.createdAt
+                            ? new Date(rating.createdAt).toLocaleDateString()
+                            : ""}
+                        </span>
+                      </div>
+                      <p className="text-slate-600 mt-1">
+                        {rating.comment ?? "No comment"}
+                      </p>
+                      <p className="text-slate-400 mt-0.5">
+                        Tenant #{rating.tenantId}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ListingInfoCard>
           </div>
         </div>
       </div>
@@ -460,11 +746,13 @@ export default function ListingsView() {
                     <td className="py-4 px-5">
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold  tracking-wide ${
-                          listing.status === "Verified"
+                          listing.status === "published"
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
                             : listing.status === "Pending"
                               ? "bg-amber-50 text-amber-700 border border-amber-100"
-                              : "bg-red-50 text-red-700 border border-red-100"
+                              : listing.status === "rented"
+                                ? "bg-sky-50 text-sky-700 border border-sky-100"
+                                : "bg-red-50 text-red-700 border border-red-100"
                         }`}
                       >
                         {listing.status}
@@ -523,13 +811,13 @@ export default function ListingsView() {
         activeModal={activeModal}
         modalTargetAgent={null}
         modalReasonInput={modalReason}
-        modalScoreReduction={10}
-        modalExtendValue="3"
+        // modalScoreReduction={10}
+        // modalExtendValue="3"
         onReasonChange={setModalReason}
-        onScoreReductionChange={() => undefined}
-        onExtendValueChange={() => undefined}
+        // onScoreReductionChange={() => undefined}
+        // onExtendValueChange={() => undefined}
         onClose={() => setActiveModal(null)}
-        onConfirm={confirmRemove}
+        // onConfirm={confirmRemove}
       />
     </div>
   );

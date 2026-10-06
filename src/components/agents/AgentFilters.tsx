@@ -38,9 +38,10 @@ export default function AgentFilters({
           className="bg-slate-50 text-slate-700 px-3 py-1.5 text-xs border border-slate-200 outline-none rounded-lg focus:border-[#004d2c] font-semibold w-full md:w-36 select-none"
         >
           <option value="all">All Verification</option>
-          <option value="Verified">Verified Only</option>
-          <option value="Pending">Pending Only</option>
-          <option value="Blocked">Blocked Only</option>
+          <option value="verified">Verified Only</option>
+          <option value="pending">Pending Only</option>
+          <option value="not_started">Not Started Only</option>
+          <option value="banned">Banned Only</option>
         </select>
 
         <select

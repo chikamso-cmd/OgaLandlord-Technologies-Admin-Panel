@@ -23,18 +23,14 @@ const infractions = [
   { id: "4", label: "late_or_no_response" },
   { id: "5", label: "property_unavailable" },
   { id: "6", label: "pricing_issues" },
-  { id: "7", label: "harassment_of_tenants" },
+  { id: "7", label: "harassment_of_tenant" },
   { id: "8", label: "duplicate_listings" },
 ];
 const severity = [
   { id: "1", severity_gravity: "high" },
-  { id: "2", severity_gravity: "high" },
+  { id: "2", severity_gravity: "low" },
   { id: "3", severity_gravity: "medium" },
-  { id: "4", severity_gravity: "low" },
-  { id: "5", severity_gravity: "medium" },
-  { id: "6", severity_gravity: "high" },
-  { id: "7", severity_gravity: "low" },
-  { id: "8", severity_gravity: "high" },
+ 
 ];
 
 const severityClasses: Record<string, string> = {
@@ -54,14 +50,18 @@ export default function ReduceTrustScoreModal({
 }: ReduceTrustScoreModalProps) {
   const [trustScoreInfarction, setTrustScoreInfarction] = useState<string>("");
   const [reasonsForReduction, setReasonsForReduction] = useState<string>("");
-  const [trustScoreInfartionGravity, setTrustScoreInfartionGravity] =
-    useState<string>("");
+  const [trustScoreInfartionGravity, setTrustScoreInfartionGravity] = useState<
+    string | null
+  >(null);
   const [trustScoreReductionNumber, settrustScoreReductionNumber] =
-    useState<number>(0);
+    useState<string>();
   const [loading, setLoading] = useState(false);
 
   const currentScore = agent?.data?.trustScore ?? 0;
-  const newScore = Math.max(0, currentScore - trustScoreReductionNumber);
+  const newScore = Math.max(
+    0,
+    currentScore - Number(trustScoreReductionNumber ?? 0),
+  ).toString();
   const selectedList = useMemo(
     () =>
       infractions.filter((item) =>
@@ -78,14 +78,22 @@ export default function ReduceTrustScoreModal({
   );
   const selectedInfraction = selectedList[0];
   const selectedGravity = selectedNumber[0];
+
   const canSubmit =
-    Number.isFinite(trustScoreReductionNumber) &&
-    trustScoreReductionNumber > 0 &&
+    Boolean(trustScoreReductionNumber) &&
+    !isNaN(Number(trustScoreReductionNumber)) &&
+    Number(trustScoreReductionNumber) > 0 &&
+    // trustScoreReductionNumber?.trim()
     trustScoreInfarction.length > 0 &&
     reasonsForReduction.trim().length > 0;
 
   // agent id to append
-  const agentId = agent?.data.id;
+  // Converts agentId to a string if it's a number (or leaves it as-is if already a string)
+  const agentId = String(
+      agent?.data?.id ??
+      // agent?.data?.agentId ??
+      "",
+  );
   // const toggleInfraction = (id: string) => {
   //   setTrustScoreInfraction((prev) =>
   //     prev?.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
@@ -113,7 +121,7 @@ export default function ReduceTrustScoreModal({
       await api.patch(`/admin/reduced_trust_score`, payload);
       setReasonsForReduction("");
       setTrustScoreInfarction("");
-      settrustScoreReductionNumber(0);
+      settrustScoreReductionNumber("");
       toast.success("Trust score reduced successfully");
       onClose();
     } catch (err: any) {
@@ -122,6 +130,7 @@ export default function ReduceTrustScoreModal({
         err?.message ||
         "Failed to reduce trust score.";
       toast.error(message);
+      console.error(message, "error");
     } finally {
       setLoading(false);
     }
@@ -162,15 +171,12 @@ export default function ReduceTrustScoreModal({
               Points to Reduce *
             </label>
             <input
-              type="number"
-              min={1}
-              max={100}
+              type="text"
+              // min={1}
+              // max={100}
               value={trustScoreReductionNumber || ""}
               onChange={(event) => {
-                const nextValue = Number(event.target.value);
-                settrustScoreReductionNumber(
-                  Number.isNaN(nextValue) ? 0 : nextValue,
-                );
+                settrustScoreReductionNumber(event.target.value);
               }}
               className="mt-3 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-[#004d2c] focus:bg-white"
             />
@@ -269,7 +275,9 @@ export default function ReduceTrustScoreModal({
                 {currentScore}
               </p>
             </div>
-            <div><ArrowLeft size={20} className="rotate-180 text-gray-400"/></div>
+            <div>
+              <ArrowLeft size={20} className="rotate-180 text-gray-400" />
+            </div>
             <div className="space-y-1 text-right">
               <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
                 New Score

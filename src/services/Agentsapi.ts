@@ -20,6 +20,37 @@ const getNumericValue = (value: unknown): number | null => {
   return Number.isFinite(number) ? number : null;
 };
 
+const toNullableString = (value: unknown): string | null =>
+  value === null || value === undefined || value === "" ? null : String(value);
+
+type VerificationStatus =OgaAgent["data"]["verificationStatus"];
+
+const verificationStatuses: VerificationStatus[] = [
+  "not_started",
+  "verified",
+  "pending",
+  "banned",
+  "blocked",
+];
+
+const getVerificationStatus = (user: ApiCollection): VerificationStatus => {
+  const status = String(
+    user.verificationStatus ?? user.verification_status ?? user.status ?? "",
+  )
+    .trim()
+    .toLowerCase()
+    .replace(/[ -]/g, "_");
+  if (verificationStatuses.includes(status as VerificationStatus)) {
+    return status as VerificationStatus;
+  }
+
+  const isVerified = user.isVerified ?? user.is_verified;
+  if (isVerified === true || String(isVerified).toLowerCase() === "true") {
+    return "verified";
+  }
+  return "not_started";
+};
+
 export const agentsApi = async (): Promise<any[]> => {
   const response = await api.get("/admin/all_users?role=agent");
   const users = Array.isArray(response.data)
@@ -30,15 +61,12 @@ export const agentsApi = async (): Promise<any[]> => {
     (user: ApiCollection): OgaAgent => ({
       data: {
         id: Number(user.id),
+        agentId: String(user.id),
         name: String(user.name ?? "Unnamed agent"),
         email: String(user.email ?? ""),
         phone: String(user.phoneNo ?? ""),
         avatar: String(user.imageUrl ?? ""),
-        verificationStatus: user.isVerified
-          ? "Verified"
-          : user.verificationStatus === "pending"
-            ? "Pending"
-            : "not_started",
+        verificationStatus: getVerificationStatus(user),
         trustScore: Number(user.trustScore ?? 0),
         activeListingsCount: 0,
         subscriptionPlan: "Free",
@@ -47,7 +75,23 @@ export const agentsApi = async (): Promise<any[]> => {
         responseTime: 0,
         transactionSuccess: 0,
         clientSatisfaction: 0,
-        areasOfOperation: [],
+        areasOfOperation: user.city ? [String(user.city)] : [],
+        username: toNullableString(user.username),
+        role: toNullableString(user.role),
+        isVerified: user.isVerified === true,
+        status: toNullableString(user.status),
+        address: toNullableString(user.address),
+        adminLevel: toNullableString(user.adminLevel),
+        businessName: toNullableString(user.businessName),
+        rcNumber: toNullableString(user.rcNumber),
+        businessAddress: toNullableString(user.businessAddress),
+        idType: toNullableString(user.idType),
+        idNumber: toNullableString(user.idNumber),
+        idExpiry: toNullableString(user.idExpiry),
+        idFrontUrl: toNullableString(user.idFrontUrl),
+        idBackUrl: toNullableString(user.idBackUrl),
+        city: toNullableString(user.city),
+        imagePublicId: toNullableString(user.imagePublicId),
       },
     }),
   );

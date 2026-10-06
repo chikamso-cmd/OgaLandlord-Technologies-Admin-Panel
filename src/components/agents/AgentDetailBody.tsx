@@ -44,6 +44,35 @@ export default function AgentDetailBody({ agent, listings }: AgentDetailBodyProp
         </div>
 
         <div className="bg-white p-5 rounded-xl border border-emerald-950/5 space-y-3">
+          <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider border-b border-slate-50 pb-2">
+            Profile Details
+          </h4>
+          <div className="space-y-1">
+            <DetailRow label="Agent ID" value={agent.data?.agentId} />
+            <DetailRow label="Username" value={agent.data?.username} />
+            <DetailRow label="Role" value={agent.data?.role} />
+            <DetailRow label="Account Status" value={agent.data?.status} />
+            <DetailRow
+              label="Email Verified"
+              value={agent.data?.isVerified === undefined ? null : agent.data.isVerified ? 'Yes' : 'No'}
+            />
+            <DetailRow label="Address" value={agent.data?.address} />
+            <DetailRow label="City" value={agent.data?.city} />
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-xl border border-emerald-950/5 space-y-3">
+          <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider border-b border-slate-50 pb-2">
+            Business Details
+          </h4>
+          <div className="space-y-1">
+            <DetailRow label="Business Name" value={agent.data?.businessName} />
+            <DetailRow label="RC Number" value={agent.data?.rcNumber} />
+            <DetailRow label="Business Address" value={agent.data?.businessAddress} />
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-xl border border-emerald-950/5 space-y-3">
           <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">
             Areas of Operation
           </h4>
@@ -64,39 +93,15 @@ export default function AgentDetailBody({ agent, listings }: AgentDetailBodyProp
           <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">
             Verification Documents
           </h4>
+          <div className="space-y-1">
+            <DetailRow label="ID Type" value={agent.data?.idType} />
+            <DetailRow label="ID Number" value={agent.data?.idNumber} />
+            <DetailRow label="ID Expiry" value={formatDate(agent.data?.idExpiry)} />
+          </div>
           <div className="space-y-3.5">
-            <div>
-              <span className="text-[10px] text-slate-400 font-bold block mb-1.5 uppercase">Government ID</span>
-              <div className="relative aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
-                <img
-                  src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80"
-                  alt="Govt ID Mockup"
-                  className="w-full h-full object-cover blur-xs opacity-60"
-                />
-                <div className="absolute inset-0 flex items-center justify-center p-3 text-center bg-black/30 backdrop-blur-xxs">
-                  <p className="text-[11px] font-bold text-white shadow-xs">
-                    Verified Government Identity Document ID: **-4932
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <span className="text-[10px] text-slate-400 font-bold block mb-1.5 uppercase">Selfie Verification</span>
-              <div className="relative aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
-                <img
-                  src={agent.data?.avatar}
-                  alt="Selfie verification"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 to-transparent p-3">
-                  <p className="text-[10px] font-bold text-white flex items-center gap-1">
-                    <CheckCircle size={11} className="text-emerald-400" />
-                    <span>Face Match: 98% Confirmed</span>
-                  </p>
-                </div>
-              </div>
-            </div>
+            <DocumentImage label="Government ID (Front)" url={agent.data?.idFrontUrl} />
+            <DocumentImage label="Government ID (Back)" url={agent.data?.idBackUrl} />
+            <DocumentImage label="Profile Photo" url={agent.data?.avatar} />
           </div>
         </div>
       </div>
@@ -105,6 +110,47 @@ export default function AgentDetailBody({ agent, listings }: AgentDetailBodyProp
         <AgentListingSection listings={listings} />
         <AgentHistoryLogs />
       </div>
+    </div>
+  );
+}
+
+function formatDate(value?: string | null) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString();
+}
+
+function DetailRow({ label, value }: { label: string; value?: string | number | null }) {
+  const isEmpty = value === null || value === undefined || value === '';
+  return (
+    <div className="flex justify-between gap-4 text-xs py-1.5 border-b border-slate-50 last:border-b-0">
+      <span className="text-slate-400 font-bold shrink-0">{label}</span>
+      <span className={`text-right break-all ${isEmpty ? 'text-slate-300 italic' : 'text-slate-700 font-semibold'}`}>
+        {isEmpty ? 'Not provided' : value}
+      </span>
+    </div>
+  );
+}
+
+function DocumentImage({ label, url }: { label: string; url?: string | null }) {
+  return (
+    <div>
+      <span className="text-[10px] text-slate-400 font-bold block mb-1.5 uppercase">{label}</span>
+      {url ? (
+        <a href={url} target="_blank" rel="noreferrer" className="block relative aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+          <img src={url} alt={label} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 flex items-end bg-linear-to-t from-black/60 to-transparent p-3">
+            <p className="text-[10px] font-bold text-white flex items-center gap-1">
+              <CheckCircle size={11} className="text-emerald-400" />
+              <span>Uploaded — click to view</span>
+            </p>
+          </div>
+        </a>
+      ) : (
+        <div className="aspect-video flex items-center justify-center bg-slate-50 rounded-lg border border-dashed border-slate-200 text-[11px] text-slate-400">
+          Not uploaded
+        </div>
+      )}
     </div>
   );
 }

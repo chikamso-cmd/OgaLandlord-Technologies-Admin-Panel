@@ -81,9 +81,9 @@ export default function AgentTable({ agents, onSelectAgent }: AgentTableProps) {
                   <td className="py-3 px-5">
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider ${
-                        agent.data.verificationStatus === "Verified"
+                        agent.data.verificationStatus === "verified"
                           ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                          : agent.data.verificationStatus === "Pending"
+                          : agent.data.verificationStatus === "pending"
                             ? "bg-amber-50 text-amber-700 border border-amber-100"
                             : "bg-red-50 text-red-700 border border-red-100"
                       }`}

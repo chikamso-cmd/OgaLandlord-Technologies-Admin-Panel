@@ -51,11 +51,17 @@ export interface OgaRecentActivity {
 export interface OgaAgent {
   data: {
     id: number;
+    agentId: string;
     name: string;
     email: string;
     phone: string;
     avatar: string;
-    verificationStatus: "not_started" | "Verified" | "Pending" | "Blocked";
+    verificationStatus:
+      | "not_started"
+      | "verified"
+      | "pending"
+      | "banned"
+      | "blocked";
     trustScore: number;
     activeListingsCount: number;
     subscriptionPlan: "Premium" | "Free";
@@ -65,6 +71,22 @@ export interface OgaAgent {
     transactionSuccess: number; // score out of 100
     clientSatisfaction: number; // score out of 100
     areasOfOperation: string[];
+    username?: string | null;
+    role?: string | null;
+    isVerified?: boolean;
+    status?: string | null;
+    address?: string | null;
+    adminLevel?: string | null;
+    businessName?: string | null;
+    rcNumber?: string | null;
+    businessAddress?: string | null;
+    idType?: string | null;
+    idNumber?: string | null;
+    idExpiry?: string | null;
+    idFrontUrl?: string | null;
+    idBackUrl?: string | null;
+    city?: string | null;
+    imagePublicId?: string | null;
   };
 }
 
@@ -75,10 +97,10 @@ export interface OgaListing {
   price: string; // e.g. "₦1.2M/Year" or "₦800,000/yr"
   agentId: number;
   agentName: string;
-  status: "Verified" | "Pending" | "Removed";
+  status: "published" | "Pending" | "Removed" | "rented";
   beds: number;
   baths: number;
-  rentStatus: "Rented" | "Available" | "Removed" | "Pending";
+  rentStatus: "rented" | "Available" | "Removed" | "Pending";
   timeAgo: string;
   image: string;
   description: string;
@@ -94,6 +116,54 @@ export interface OgaListing {
     total: string;
     inspectionFee: string;
   };
+  propertyType?: string | null;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  rawStatus?: string | null;
+  createdAt?: string | null;
+  images?: string[];
+  units?: OgaListingUnit[];
+  agent?: {
+    id: number;
+    name: string;
+    email: string | null;
+    username: string | null;
+    trustScore: number;
+    verificationStatus: string | null;
+    imageUrl: string | null;
+  };
+  ratings?: OgaListingRating[];
+  averageRating?: number | null;
+  viewsCount?: number;
+  favoritesCount?: number;
+  reportsCount?: number;
+  commentsCount?: number;
+}
+
+export interface OgaListingUnit {
+  id: number;
+  unitNumber: string | null;
+  rentPrice: number;
+  bedrooms: number;
+  bathrooms: number;
+  isAvailable: boolean;
+  agentFee: number;
+  damageDeposit: number;
+  inspectionFee: number;
+  serviceCharge: number;
+  totalPackage: number;
+}
+
+export interface OgaListingRating {
+  id: number;
+  tenantId: number;
+  stars: number;
+  comment: string | null;
+  createdAt: string | null;
 }
 
 export interface OgaReport {

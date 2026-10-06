@@ -1,12 +1,25 @@
-import { ArrowLeft, CalendarCheck, CheckCircle } from 'lucide-react';
-import { OgaAgent } from '../../types';
+import { ArrowLeft, CalendarCheck, CheckCircle } from "lucide-react";
+import { OgaAgent } from "../../types";
 
 interface AgentDetailHeaderProps {
   agent: OgaAgent;
   onBack: () => void;
 }
 
-export default function AgentDetailHeader({ agent, onBack }: AgentDetailHeaderProps) {
+export default function AgentDetailHeader({
+  agent,
+  onBack,
+}: AgentDetailHeaderProps) {
+  const verificationStatus = agent.data?.verificationStatus;
+  const verificationBadgeClass =
+    verificationStatus === "verified"
+      ? "bg-emerald-600 text-white"
+      : verificationStatus === "pending"
+        ? "bg-amber-600 text-white"
+        : verificationStatus === "banned" || verificationStatus === "blocked"
+          ? "bg-red-600 text-white"
+          : "bg-slate-100 text-slate-600";
+
   return (
     <div className="space-y-6">
       <button
@@ -26,50 +39,68 @@ export default function AgentDetailHeader({ agent, onBack }: AgentDetailHeaderPr
               className="w-20 h-20 rounded-2xl object-cover bg-slate-100 border-2 border-slate-100 shadow-inner"
             />
             <div className="space-y-1">
-              <span className={`px-2 py-0.5 mb-3 text-[8px] font-medium rounded-md tracking-wider ${agent.data?.verificationStatus === 'Verified'
-                ? 'bg-emerald-600 text-white'
-                : agent.data?.verificationStatus === 'Pending'
-                  ? 'bg-amber-600 text-white'
-                  : 'bg-red-600 text-white'
-                }`}>
-                {agent.data?.verificationStatus}
+              <span
+                className={`px-2 py-0.5 mb-3 text-[8px] font-medium rounded-md tracking-wider ${verificationBadgeClass}`}
+              >
+                {verificationStatus}
               </span>
               <div className="flex items-center gap-2 mt-2">
                 <h3 className="text-md font-medium text-slate-800 tracking-tight leading-none">
                   {agent.data?.name}
                 </h3>
-
               </div>
 
               <p className="text-[10px] text-slate-400">{agent.data?.email}</p>
-              <p className="text-[10px] font-semibold text-slate-700">{agent.data?.phone}</p>
+              <p className="text-[10px] font-semibold text-slate-700">
+                {agent.data?.phone}
+              </p>
               <div className="flex items-center gap-1.5 text-xs text-amber-500 font-bold select-none pt-1">
-                <p>★ <span className="text-slate-500">4.9</span></p>
-                <span className="text-slate-400 font-medium text-[8px]">(183 reviews)</span>
+                <p>
+                  ★ <span className="text-slate-500">4.9</span>
+                </p>
+                <span className="text-slate-400 font-medium text-[8px]">
+                  (183 reviews)
+                </span>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-8 border-t md:border-t-0 pt-4 md:pt-0 border-slate-100">
             <div className="text-center">
-              <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider mb-1.5">Trust Score</span>
-              <span className="text-lg font-black text-green-600 tracking-tighter leading-none">{agent.data?.trustScore}</span>
+              <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider mb-1.5">
+                Trust Score
+              </span>
+              <span className="text-lg font-black text-green-600 tracking-tighter leading-none">
+                {agent.data?.trustScore}
+              </span>
             </div>
           </div>
         </div>
         <div className="flex gap-2 mt-5">
           <div className="flex items-center ">
-            <div className="bg-green-100 text-green-700 p-2 rounded-sm"><CalendarCheck size={13} /></div>
+            <div className="bg-green-100 text-green-700 p-2 rounded-sm">
+              <CalendarCheck size={13} />
+            </div>
             <div className="  rounded-xl p-3  min-w-25">
-              <span className="text-xs font-medium text-[#004d2c] mt-1 block">{agent.data?.experienceYears}+</span>
-              <span className="text-[9px] text-slate-400 block mt-0.5 leading-none">Years of experience</span>
+              <span className="text-xs font-medium text-[#004d2c] mt-1 block">
+                {agent.data?.experienceYears}+
+              </span>
+              <span className="text-[9px] text-slate-400 block mt-0.5 leading-none">
+                Years of experience
+              </span>
             </div>
           </div>
           <div className="flex items-center">
-            <div className="bg-amber-100 text-amber-700 p-2 rounded-sm"><CheckCircle size={13} /></div>
+            <div className="bg-amber-100 text-amber-700 p-2 rounded-sm">
+              <CheckCircle size={13} />
+            </div>
             <div className=" rounded-xl p-3 min-w-25">
-              <span className="text-xs font-medium text-[#004d2c] mt-1 block">{agent.data?.dealsClosed}+</span>
-              <span className="text-[9px] text-slate-400 block mt-0.5 leading-none">Deals closed</span>
+              <span className="text-xs font-medium text-[#004d2c] mt-1 block">
+                {agent.data?.dealsClosed}+
+              </span>
+              <span className="text-[9px] text-slate-400 block mt-0.5 leading-none">
+                Deals closed
+              </span>
             </div>
           </div>
         </div>
