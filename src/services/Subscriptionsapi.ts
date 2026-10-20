@@ -8,7 +8,9 @@ interface SubscriptionsResponse {
 }
 
 export const SubscriptionsApi = async (): Promise<AgentSubscription[]> => {
-  const response = await api.get<SubscriptionsResponse>("/agent/subscription");
+  const response = await api.get<SubscriptionsResponse>(
+    "/admin/all_agents_subscriptions",
+  );
   const subscriptions = response.data?.data?.subscriptions;
   return Array.isArray(subscriptions) ? subscriptions : [];
 };

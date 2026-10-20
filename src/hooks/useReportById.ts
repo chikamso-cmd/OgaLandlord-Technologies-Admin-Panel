@@ -6,4 +6,8 @@ export const useReportById = (reportId: string | null) =>
     queryFn: () => ReportByIdApi(reportId!),
     queryKey: ["report", reportId],
     enabled: reportId !== null,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 5,
+    refetchInterval: 15_000,
+    refetchOnWindowFocus: true,
   });

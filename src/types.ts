@@ -33,7 +33,7 @@ export interface OgaStatCard {
     | "revenue";
 }
 
-export interface OgaAlert {
+export interface dOgaAlert {
   id: string;
   text: string;
   type: "danger" | "warning" | "info";

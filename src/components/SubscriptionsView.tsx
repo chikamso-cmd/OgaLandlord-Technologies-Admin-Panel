@@ -19,11 +19,11 @@ import { useSubscriptions } from "../hooks/useSubscriptions";
 type SubscriptionStatus = "Active" | "Expired" | "Expiring soon";
 
 const getStatus = (subscription: AgentSubscription): SubscriptionStatus => {
-  const rawStatus = subscription.status.toLowerCase();
+  const rawStatus = subscription?.status.toLowerCase();
   if (rawStatus === "expired") return "Expired";
-  if (rawStatus.includes("expiring")) return "Expiring soon";
+  if (rawStatus?.includes("expiring")) return "Expiring soon";
 
-  const endTime = new Date(subscription.endDate).getTime();
+  const endTime = new Date(subscription?.endDate).getTime();
   if (Number.isFinite(endTime) && endTime < Date.now()) return "Expired";
   if (
     Number.isFinite(endTime) &&
@@ -67,9 +67,9 @@ export default function SubscriptionsView() {
   const filteredSubs = subscriptions.filter((subscription) => {
     const search = searchTerm.toLowerCase();
     const matchesSearch =
-      String(subscription.agentId).includes(search) ||
-      String(subscription.id).includes(search) ||
-      subscription.plan.name.toLowerCase().includes(search);
+      String(subscription?.agentId).includes(search) ||
+      String(subscription?.id).includes(search) ||
+      subscription?.plan?.name.toLowerCase().includes(search);
     const matchesStatus =
       statusFilter === "all" || getStatus(subscription) === statusFilter;
     return matchesSearch && matchesStatus;
@@ -252,32 +252,32 @@ export default function SubscriptionsView() {
                   const status = getStatus(sub);
                   return (
                     <tr
-                      key={sub.id}
+                      key={sub?.id}
                       className="hover:bg-[#f4fcf8]/50 transition-all"
                     >
                       <td className="py-3.5 px-5 font-bold text-slate-800 text-[10px]">
-                        Agent #{sub.agentId}
+                        Agent #{sub?.agentId}
                         <span className="block text-[10px] text-slate-400 font-bold uppercase">
-                          SUB-{sub.id}
+                          SUB-{sub?.id}
                         </span>
                       </td>
 
                       <td className="py-3 px-5 text-slate-600 font-normal">
                         <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700  border border-indigo-100 text-[9px] rounded">
-                          {sub.plan.name}
+                          {sub?.plan.name}
                         </span>
                       </td>
 
                       <td className="py-3 px-5 text-green-800 font-normal text-[10px]">
-                        {formatPrice(sub.plan.price)}
+                        {formatPrice(sub?.plan?.price)}
                       </td>
 
                       <td className="py-3 px-5 text-slate-500 font-mono text-[10px]">
-                        {formatDate(sub.startDate)}
+                        {formatDate(sub?.startDate)}
                       </td>
 
                       <td className="py-3 px-5 text-slate-500 font-mono text-[10px]">
-                        {formatDate(sub.endDate)}
+                        {formatDate(sub?.endDate)}
                       </td>
 
                       <td className="py-3 px-5">

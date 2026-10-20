@@ -5,6 +5,10 @@ const useProperties = () => {
   return useQuery({
     queryFn: agentsApi,
     queryKey: ["agent"],
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 5,
+    refetchInterval: 15_000,
+    refetchOnWindowFocus: true,
   });
 };
 
